@@ -1,0 +1,36 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "build",
+			"label": "build app",
+			"command": "echo .",
+			"dependsOn": [
+				"build server",
+				"build client"
+			]
+		},
+		{
+			"type": "typescript",
+			"tsconfig": "server/tsconfig.json",
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "build",
+			"label": "build server"
+		},
+		{
+			"type": "typescript",
+			"tsconfig": "client/tsconfig.json",
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "build",
+			"label": "build client"
+		}
+	]
+}

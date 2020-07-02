@@ -1,0 +1,116 @@
+:root {
+	--border: 1px solid #666;
+	
+	font: 40px Arial;
+	color: #fff;
+}
+
+etcs-screen {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	
+	background: #222;
+}
+
+etcs-main {
+	display: flex;
+	
+	height: 100vmin;
+	width: 150vmin;
+	background: #000;
+}
+
+etcs-meta, 
+etcs-core, 
+etcs-status {
+	display: flex;
+	flex-direction: column;
+	border-right: var(--border);
+}
+
+etcs-meta {
+	width: 8%;
+}
+
+etcs-core {
+	width: 45%;
+}
+
+etcs-status {
+	width: 40%;
+}
+
+etcs-train-view {
+	flex-grow: 1;
+}
+
+etcs-meta-blank, 
+etcs-speed-gauge, 
+etcs-look-ahead {
+	border-bottom: var(--border);
+	height: 60%;
+}
+
+etcs-meta-blank {
+	height: 60%;
+}
+
+etcs-speed-gauge,
+etcs-look-ahead {
+	position: relative;
+}
+
+etcs-speed-gauge canvas,
+etcs-look-ahead canvas {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+}
+
+etcs-info-group {
+	display: flex;
+	border-bottom: var(--border);
+	flex-wrap: wrap;
+	margin-right: -1px;
+}
+
+etcs-info {
+	display: block;
+	flex-shrink: 0;
+	width: calc(25% - 0.5rem - 1px);
+	padding: 0.25rem;
+	border-right: var(--border);
+	border-bottom: var(--border);
+	margin-bottom: -1px;
+	overflow: hidden;
+}
+
+etcs-info-name {
+	display: block;
+	font-size: 0.5rem;
+}
+
+etcs-info-value {
+	display: block;
+	position: relative;
+}
+
+etcs-info-value:after {
+	content: "";
+	position: absolute;
+	top: 0;
+	right: -0.25rem;
+	bottom: 0;
+	width: 0.5rem;
+	background: linear-gradient(90deg, #0000, #000f);
+}

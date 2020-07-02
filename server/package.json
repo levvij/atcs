@@ -1,0 +1,15 @@
+{
+  "name": "etcs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/server/main.js",
+  "scripts": {
+    "start": "node dist/server/main.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^14.0.13",
+    "express-ws": "^4.0.0"
+  }
+}

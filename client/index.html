@@ -1,0 +1,63 @@
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+	
+	<script src="/client/etcs/main" type="module"></script>
+	
+	<link rel="stylesheet" href="/assets/main.css">
+</head>
+
+<etcs-screen>
+	<etcs-main>
+		<etcs-meta>
+			<etcs-meta-blank></etcs-meta-blank>
+			<etcs-level></etcs-level>
+		</etcs-meta>
+		
+		<etcs-core>
+			<etcs-speed-gauge></etcs-speed-gauge>
+			
+			<etcs-train-settings>
+			</etcs-train-settings>
+		</etcs-core>
+		
+		<etcs-status>
+			<etcs-look-ahead></etcs-look-ahead>
+			
+			<etcs-info-group>
+				<etcs-info>
+					<etcs-info-name>SEG LEN</etcs-info-name>
+					<etcs-info-value data="segment-length">-</etcs-info-value>
+				</etcs-info>
+				
+				<etcs-info>
+					<etcs-info-name>SEG REM</etcs-info-name>
+					<etcs-info-value data="segment-remainder">-</etcs-info-value>
+				</etcs-info>
+				
+				<etcs-info>
+					<etcs-info-name>BRK LEN</etcs-info-name>
+					<etcs-info-value data="break-distance">-</etcs-info-value>
+				</etcs-info>
+				
+				<etcs-info>
+					<etcs-info-name>SAFE BRK</etcs-info-name>
+					<etcs-info-value data="safe-break-distance">-</etcs-info-value>
+				</etcs-info>
+				
+				<etcs-info>
+					<etcs-info-name>LH SAFE</etcs-info-name>
+					<etcs-info-value data="lookahead-safe-distance">-</etcs-info-value>
+				</etcs-info>
+				
+				<etcs-info>
+					<etcs-info-name>SEG</etcs-info-name>
+					<etcs-info-value data="current-segment">-</etcs-info-value>
+				</etcs-info>
+			</etcs-info-group>
+		</etcs-status>
+		
+		<etcs-train-view>
+		</etcs-train-view>
+	</etcs-main>
+</etcs-screen>

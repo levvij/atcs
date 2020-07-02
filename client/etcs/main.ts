@@ -1,0 +1,31 @@
+import { testLayout1 } from "../../shared/layout";
+import { Bridge } from "./bridge";
+import { Simulator } from "../../shared/simulator";
+import { LookAhead } from "./look-ahead";
+import { Controls } from "./controls";
+import { Turnout } from "../../shared/segment";
+
+window.onload = async () => {
+	const layout = testLayout1;
+	layout.resolveConnections();
+	layout.trains = [];
+
+	const bridge = new Bridge(layout);
+	await bridge.open();
+
+	for (let segment of layout.segments) {
+		if (segment instanceof Turnout) {
+			await Bridge.updateTurnout(segment);
+		}
+	}
+
+	const trainId = location.pathname.split("/")[2];
+	const train = await Bridge.getTrain(+trainId);
+
+	const simulator = new Simulator(layout, train);
+	const lookAhead = new LookAhead(document.querySelector("etcs-look-ahead"), train);
+	const controls = new Controls(train, lookAhead);
+
+	(window as any).layout = layout;
+	(window as any).train = train;
+};

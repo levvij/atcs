@@ -1,0 +1,13 @@
+{
+	"compileOnSave": true,
+	"compilerOptions": {
+		"outDir": "dist",
+		"target": "es6",
+		"lib": [
+			"ESNext",
+			"DOM"
+		],
+		"experimentalDecorators": true
+	},
+	"include": ["**/*", "../shared/"]
+}
