@@ -31,7 +31,7 @@ export class Train {
 		segment.reservedBy = this;
 		this.location.segment = segment;
 
-		let distance = this.location.distance = this.length;
+		let distance = this.location.distance = this.length + 1;
 		
 		for (let car of this.cars) {
 			car.location.segment = segment;
@@ -115,15 +115,47 @@ export class Train {
 	}
 
 	get currentMaxSpeed() {
-		return Math.min(...this.cars.map(c => c.location.segment.speed.max));
+		return this.cars.reduce((a, c) => a + c.location.segment.speed.max * c.length, 0) / this.length;
 	}
 
 	get currentOptimalSpeed() {
-		return Math.min(...this.cars.map(c => c.location.segment.speed.optimal));
+		let total = 0;
+
+		for (let car of this.cars) {
+			if (car.length <= car.location.distance) {
+				total += car.length * car.location.segment.speed.optimal;
+			} else {
+				// add part of car, which is already in the new segment
+				total += car.location.distance * car.location.segment.speed.optimal;
+
+				// get previous segment
+				const previousSegment = this.lastCar == car ? this.trailingSegment : this.cars[this.cars.indexOf(car) + 1].location.segment;
+
+				total += (car.length - car.location.distance) * previousSegment.speed.optimal;
+			}
+		}
+
+		return total / this.length;
 	}
 
 	getNextUnreservedTurnout() {
-		return this.getNextSegmentsByCriteria(segment => segment instanceof Turnout && segment.reservedBy != this)[0] as Turnout;
+		let last = false;
+
+		const segments = this.getNextSegmentsByCriteria(segment => {
+			if (last) {
+				return false;
+			}
+
+			if (segment instanceof Turnout) {
+				if (segment.reservedBy != this) {
+					last = true;
+				}
+			}
+
+			return true;
+		});
+
+		return segments.reverse().find(s => s instanceof Turnout) as Turnout;
 	}
 
 	getDistanceToSegment(segment: Segment) {

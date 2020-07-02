@@ -20,6 +20,8 @@ export class LookAhead {
 	safeBreakDistanceLabel: Label;
 	lookaheadSafeDistanceLabel: Label;
 	currentSegmentLabel: Label;
+	currentMaxSpeedLabel: Label;
+	currentOptimalSpeedLabel: Label;
 
 	constructor(
 		public element: HTMLElement,
@@ -52,6 +54,8 @@ export class LookAhead {
 		this.safeBreakDistanceLabel = new Label("safe-break-distance");
 		this.lookaheadSafeDistanceLabel = new Label("lookahead-safe-distance");
 		this.currentSegmentLabel = new Label("current-segment");
+		this.currentMaxSpeedLabel = new Label("current-max-speed");
+		this.currentOptimalSpeedLabel = new Label("current-optimal-speed");
 		
 		this.update();
 	}
@@ -131,7 +135,7 @@ export class LookAhead {
 				if (nextUnreservedTurnout == segment) {
 					this.foregroundCtx.fillStyle = "#55f4";
 					this.foregroundCtx.fillRect(0, this.toPosition(distance + segment.length), this.width, this.toPosition(distance) - this.toPosition(distance + segment.length));
-					this.foregroundCtx.fillRect(this.width / 4, this.toPosition(distance), this.width / 2, this.toPosition(distance) - this.toPosition(distance + (this.train.currentMaxSpeed / 3.6) * segment.switchingTime));
+					this.foregroundCtx.fillRect(this.width / 4, this.toPosition(distance), this.width / 2, this.toPosition(distance) - this.toPosition(distance + (this.train.currentMaxSpeed / 3.6) * segment.switchingTime + segment.reservationDistance));
 				}
 				
 				this.foregroundCtx.fillStyle = "#fff";
@@ -234,10 +238,9 @@ export class LookAhead {
 			this.foregroundCtx.lineTo(x + this.width / 40, this.toPosition(distance));
 			this.foregroundCtx.stroke();
 			
-			/*// speed up and speed down indicators
-			
-			this.foregroundCtx.fillText(`${segment.id} ${optimal == segment.optimal ? "" : (optimal < segment.optimal ? `▲ ${segment.optimal}` : `▼ ${segment.optimal}`)}`, x + this.width / 40, this.toPosition(distance - segment.length));
-			optimal = segment.optimal;*/
+			// speed up and speed down indicators
+			this.foregroundCtx.fillText(`${segment.id} ${optimal == segment.speed.optimal ? "" : (optimal < segment.speed.optimal ? `▲ ${segment.speed.optimal}` : `▼ ${segment.speed.optimal}`)}`, x + this.width / 40, this.toPosition(distance - segment.length));
+			optimal = segment.speed.optimal;
 		}
 		
 		this.segmentLengthLabel.update(this.train.location.segment.length);
@@ -246,6 +249,8 @@ export class LookAhead {
 		this.safeBreakDistanceLabel.update(this.train.safeBreakingDistance);
 		this.lookaheadSafeDistanceLabel.update(this.train.getSafeDistance(this.max));
 		this.currentSegmentLabel.update(this.train.location.segment.id);
+		this.currentMaxSpeedLabel.update(this.train.location.segment.speed.max);
+		this.currentOptimalSpeedLabel.update(this.train.location.segment.speed.optimal);
 		
 		if (this.lastMax != this.max) {
 			this.updateBackground();

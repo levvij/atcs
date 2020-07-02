@@ -65,6 +65,7 @@ export class Turnout implements Segment {
 		public id: string,
 		public length: number,
 		public speed: Speed,
+		public reservationDistance: number,
 		public switchingTime: number,
 		public direction: boolean,
 		public endpointIds: {

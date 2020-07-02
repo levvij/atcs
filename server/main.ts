@@ -18,13 +18,13 @@ layout.resolveConnections();
 for (let train of layout.trains) {
 	const simulator = new Simulator(this, train);
 
-	simulator.onblockreserve = block => {
+	simulator.onblockreserve.subscribe(block => {
 		block.reservedBy = train;
 
 		Bridge.updateReservation(block);
-	};
+	});
 
-	simulator.ontournoutreserve = turnout => {
+	simulator.ontournoutreserve.subscribe(turnout => {
 		turnout.reservedBy = train;
 
 		if (train.location.direction == turnout.direction) {
@@ -32,7 +32,7 @@ for (let train of layout.trains) {
 		}
 
 		Bridge.updateReservation(turnout);
-	};
+	});
 }
 
 for (let segment of layout.segments) {

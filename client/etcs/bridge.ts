@@ -39,6 +39,8 @@ export class Bridge {
 						const segment = this.layout.segments.find(s => s.id == data.reservation.segmentId);
 						const train = this.layout.trains.find(t => t.id == data.reservation.trainId);
 
+						console.log(data, this.layout);
+
 						segment.reservedBy = train;
 
 						console.log(`[Reservation] segment '${segment.id}' ${train ? `reserved by'${train.id}'` : "freed"}`);

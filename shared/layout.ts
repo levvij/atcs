@@ -100,10 +100,25 @@ testLayout1.segments = [
 		optimal: 80
 	}, [], "t6", "t8"),
 	
-	new Block("b16", 400, { 
+	new Block("b16.1", 400, { 
+		max: 120,
+		optimal: 80
+	}, [], "t8", "b16.2"),
+
+	new Block("b16.2", 300, { 
+		max: 90,
+		optimal: 60
+	}, [], "b16.1", "b16.3"),
+
+	new Block("b16.3", 200, { 
+		max: 60,
+		optimal:40
+	}, [], "b16.2", "b16.4"),
+
+	new Block("b16.4", 400, { 
 		max: 30,
 		optimal: 20
-	}, [], "t8", undefined),
+	}, [], "b16.3"),
 
 	new Block("b17", 200, { 
 		max: 180,
@@ -140,10 +155,10 @@ testLayout1.segments = [
 		optimal: 80
 	}, [], "b22", "t7"),
 
-	new Turnout("t1", 50, {
+	new Turnout("t1", 25, {
 		max: 30,
 		optimal: 20
-	}, 3, true, {
+	}, 20, 3, true, {
 		"left": "b2",
 		"middle": "b3",
 		"common": "b1",
@@ -153,7 +168,7 @@ testLayout1.segments = [
 	new Turnout("t2", 50, {
 		max: 90,
 		optimal: 60
-	}, 3, false, {
+	}, 10, 3, false, {
 		"right": "t7",
 		"middle": "b4",
 		"common": "b5",
@@ -163,7 +178,7 @@ testLayout1.segments = [
 	new Turnout("t3", 50, {
 		max: 90,
 		optimal: 60
-	}, 3, true, {
+	}, 10, 3, true, {
 		"left": "b9",
 		"right": "t4",
 		"common": "b5",
@@ -173,7 +188,7 @@ testLayout1.segments = [
 	new Turnout("t4", 30, {
 		max: 30,
 		optimal: 20
-	}, 3, false, {
+	}, 10, 3, false, {
 		"right": "t3",
 		"middle": "b8",
 		"common": "t5",
@@ -183,17 +198,17 @@ testLayout1.segments = [
 	new Turnout("t5", 30, {
 		max: 30,
 		optimal: 20
-	}, 3, true, {
+	}, 10, 3, true, {
 		"right": "b6",
 		"middle": "b7",
 		"common": "t4",
 		default: "middle"
 	}),
 
-	new Turnout("t6", 50, {
+	new Turnout("t6", 150, {
 		max: 120,
 		optimal: 80
-	}, 3, true, {
+	}, 40, 3, true, {
 		"left": "b11",
 		"middle": "b15",
 		"common": "b10",
@@ -203,7 +218,7 @@ testLayout1.segments = [
 	new Turnout("t7", 80, {
 		max: 120,
 		optimal: 80
-	}, 3, false, {
+	}, 10, 3, false, {
 		"right": "b14",
 		"middle": "b23",
 		"common": "t2",
@@ -213,9 +228,9 @@ testLayout1.segments = [
 	new Turnout("t8", 50, {
 		max: 150,
 		optimal: 100
-	}, 3, true, {
+	}, 10, 3, true, {
 		"left": "b17",
-		"middle": "b16",
+		"middle": "b16.1",
 		"common": "b15",
 		default: "middle"
 	})
@@ -241,4 +256,5 @@ testLayout1.trains = [
 testLayout1.trains[0].maxSpeed = 250;
 testLayout1.trains[0].maxAcceleration = 15;
 testLayout1.trains[0].minAcceleration = -25;
+testLayout1.trains[0].reactionDistance = 0;
 testLayout1.trains[0].location.direction = true;

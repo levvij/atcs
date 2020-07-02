@@ -1,12 +1,13 @@
 import { Layout } from "./layout";
 import { Train } from "./train";
 import { Bumper, Block, Turnout, Segment } from "./segment";
+import { ManagedEvent } from "./managed-event";
 
 export class Simulator {
 	lastTick: number;
 
-	ontournoutreserve(turnout: Turnout) {}
-	onblockreserve(block: Block) {}
+	ontournoutreserve = new ManagedEvent<Turnout>("turnout reservation");
+	onblockreserve = new ManagedEvent<Block>("block reservation");
 
 	constructor(
 		public layout: Layout, 
@@ -37,12 +38,12 @@ export class Simulator {
 
 		// pre-reserve segments
 		if (this.train.location.distance + this.train.safeBreakingDistance > this.train.location.segment.length) {
-			const segments = this.train.getNextSegments(this.train.safeBreakingDistance).filter(s => s != this.train.location.segment);
+			const segments = this.train.getNextSegmentsInDistance(this.train.safeBreakingDistance).filter(s => s != this.train.location.segment);
 
 			for (let segment of segments) {
 				if (segment instanceof Block) {
 					if (segment.reservedBy != this.train) {
-						this.onblockreserve(segment);
+						this.onblockreserve.emit(segment);
 					}
 				}
 			}
@@ -61,7 +62,7 @@ export class Simulator {
 		}
 
 		// ETCS emergency break
-		if (this.train.getSafeDistance(this.train.safeBreakingDistance) < this.train.safeBreakingDistance) {
+		if (this.train.getSafeDistance(this.train.safeBreakingDistance + distance * 2) - distance < this.train.safeBreakingDistance) {
 			this.train.acceleration = this.train.minAcceleration;
 		}
 
@@ -69,10 +70,10 @@ export class Simulator {
 		const nextTurnout = this.train.getNextUnreservedTurnout();
 
 		if (nextTurnout) {
-			const distance = this.train.safeBreakingDistance + (this.train.speed / 3.6) * nextTurnout.switchingTime;
+			const distance = this.train.safeBreakingDistance + (this.train.currentMaxSpeed / 3.6) * nextTurnout.switchingTime + nextTurnout.reservationDistance;
 
 			if (this.train.getDistanceToSegment(nextTurnout) < distance) {
-				this.ontournoutreserve(nextTurnout);
+				this.ontournoutreserve.emit(nextTurnout);
 			}
 		}
 
