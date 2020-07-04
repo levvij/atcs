@@ -4,7 +4,7 @@ import { Turnout, Block, Bumper } from "../../shared/segment";
 
 export class LookAhead {
 	max = 250;
-	steps = [50, 100, 250, 500, 1000, 2000, 4000];
+	steps = [50, 100, 250, 500, 1000, 2000, 4000, 8000];
 
 	width: number;
 	height: number;

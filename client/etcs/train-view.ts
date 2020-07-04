@@ -1,7 +1,17 @@
-class TrainView {
-	constructor(element, train) {
-		this.train = train;
-		
+import { Train, Locomotive, NegativeRollingStockMagnet, PositiveRollingStockMagnet, RollingStockIdentificationTag } from "../../shared/train";
+import { PositiveMagnetReader, BiMagnetReader, NegativeMagnetReader, RollingStockIdentificationReader } from "../../shared/sensor";
+import { Block } from "../../shared/segment";
+
+export class TrainView {
+	width: number;
+	height: number;
+
+	ctx: CanvasRenderingContext2D;
+
+	constructor(
+		element: HTMLElement, 
+		public train: Train
+	) {
 		const canvas = document.createElement("canvas");
 		
 		this.width = canvas.width = element.clientWidth;
@@ -66,9 +76,10 @@ class TrainView {
 					this.ctx.lineTo(this.width / 2, location - tagSize);
 				}
 				
+				/*// sensor hit fill
 				if (tag.hit) {
 					this.ctx.fill();
-				}
+				}*/
 				
 				this.ctx.stroke();
 			}
@@ -78,8 +89,8 @@ class TrainView {
 		
 		this.ctx.fillStyle = "#fff";
 		
-		distance = data.train.location.distance - data.train.location.segment.length;
-		for (let segment of [...data.train.location.usedSegments, data.train.location.trailingSegment]) {
+		distance = this.train.location.distance - this.train.location.segment.length;
+		for (let segment of [...this.train.usedSegments, this.train.trailingSegment]) {
 			this.ctx.beginPath();
 			this.ctx.moveTo(0, this.toPosition(distance));
 			this.ctx.lineTo(this.width / 5, this.toPosition(distance));
@@ -88,12 +99,16 @@ class TrainView {
 			this.ctx.stroke();
 			
 			if (segment) {
-				this.ctx.fillText(segment.id, this.width / 20, Math.max(this.toPosition(distance), this.width / 20));
-				
+				this.ctx.save();
+				this.ctx.rotate(Math.PI);
+				this.ctx.translate(this.width / 2, Math.max(this.toPosition(distance), this.width / 20));
+				this.ctx.fillText(segment.id, 0, 0,);
+				this.ctx.restore();
+
 				distance += segment.length;
 				
-				if (segment.block && segment.block.sensors) {
-					for (let sensor of segment.block.sensors) {
+				if (segment instanceof Block && segment.sensors) {
+					for (let sensor of segment.sensors) {
 						this.ctx.beginPath();
 						
 						const location = this.toPosition(distance - sensor.location);
@@ -120,9 +135,10 @@ class TrainView {
 							this.ctx.lineTo(this.width / 2, location - tagSize);
 						}
 
+						/*// sensor hit display
 						if (sensor.hit) {
 							this.ctx.fill();
-						}
+						}*/
 
 						this.ctx.lineWidth = 2;
 						this.ctx.stroke();

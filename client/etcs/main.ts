@@ -5,6 +5,7 @@ import { LookAhead } from "./look-ahead";
 import { Controls } from "./controls";
 import { Turnout } from "../../shared/segment";
 import { Gauge } from "./gauge";
+import { TrainView } from "./train-view";
 
 window.onload = async () => {
 	const layout = testLayout1;
@@ -29,6 +30,7 @@ window.onload = async () => {
 	const lookAhead = new LookAhead(document.querySelector("etcs-look-ahead"), train);
 	const controls = new Controls(train, lookAhead);
 	const gauge = new Gauge(document.querySelector("etcs-speed-gauge"), train);
+	const trainView = new TrainView(document.querySelector("etcs-train-view"), train);
 
 	(window as any).layout = layout;
 	(window as any).train = train;
