@@ -16,7 +16,7 @@ const layout = testLayout1;
 layout.resolveConnections();
 
 for (let train of layout.trains) {
-	const simulator = new Simulator(this, train);
+	const simulator = new Simulator(layout, train);
 
 	simulator.onblockreserve.subscribe(block => {
 		block.reservedBy = train;
