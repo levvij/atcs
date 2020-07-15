@@ -43,7 +43,7 @@ for (let segment of layout.segments) {
 			Bridge.updateTurnout(segment);
 
 			segment.switchToProposedDirection().then(() => {
-				console.log("DONE AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+				console.log("[layousetup] turnout switched");
 
 				Bridge.updateTurnout(segment as Turnout);
 			});
@@ -67,8 +67,6 @@ app.ws("/train-control", ws => {
 	ws.onmessage = message => {
 		const data = JSON.parse(message.data);
 
-		console.log(data);
-
 		function respond(response) {
 			response.$$id = data.$$id;
 
@@ -87,8 +85,6 @@ app.ws("/train-control", ws => {
 
 		if (data.turnoutInfo) {
 			const turnout = layout.segments.find(t => t.id == data.turnoutInfo) as Turnout;
-
-			console.log(turnout);
 
 			respond({
 				turnout: turnout.toData()
