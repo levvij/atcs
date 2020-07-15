@@ -1,4 +1,4 @@
-export class ManagedEvent<TData> {
+export class ManagedEvent<TData = void> {
 	private subscribers: ((data: TData) => any)[];
 
 	last: {
@@ -14,7 +14,7 @@ export class ManagedEvent<TData> {
 		this.subscribers.push(listener);
 	}
 
-	emit(data: TData) {
+	emit(data?: TData) {
 		console.log(`[Event/${this.name}]`, data);
 
 		for (let sub of this.subscribers) {
