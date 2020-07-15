@@ -43,7 +43,7 @@ for (let segment of layout.segments) {
 			Bridge.updateTurnout(segment);
 
 			segment.switchToProposedDirection().then(() => {
-				console.log("[layousetup] turnout switched");
+				console.log("[setup] turnout switched");
 
 				Bridge.updateTurnout(segment as Turnout);
 			});
@@ -57,7 +57,7 @@ app.ws("/train-control", ws => {
 	Bridge.addClient(ws);
 
 	ws.onopen = () => {
-		console.log("CONNECTED CLIENT");
+		console.log("[ws] new client connected");
 	};
 
 	ws.onclose = () => {
@@ -99,8 +99,6 @@ app.ws("/train-control", ws => {
 			respond({});
 		}
 	};
-
-	console.log(ws);
 });
 
 app.use("/", (req, res, next) => {
@@ -118,5 +116,5 @@ app.use("/assets", express.static(__dirname + "/../../../client/assets"));
 app.use("*", express.static(__dirname + "/../../../client/index.html"));
 
 app.listen(1199, () => {
-	console.log("server started on 1199");
+	console.log("[web] server started on 1199");
 });

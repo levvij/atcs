@@ -13,7 +13,7 @@ export class Simulator {
 		public layout: Layout, 
 		public train: Train
 	) {
-		console.log(train.id);
+		console.log(`[simulator/${train.id}] started`);
 
 		for (let car of train.cars) {
 			console.log(` ${car.name} ${car.location} ${car.length}`)
@@ -25,9 +25,9 @@ export class Simulator {
 			this.tick();
 		}, 25);
 
-		/*setInterval(() => {
-			console.log(train.location.toString(), train.speed, train.acceleration);
-		}, 100);*/
+		setInterval(() => {
+			console.log(`[simulator/${train.id}] loc: ${train.location}, ${Math.round(train.speed * 10) / 10}km/h (${train.acceleration > 0 ? `+${train.acceleration}` : train.acceleration})`);
+		}, 5000);
 	}
 
 	tick() {

@@ -99,8 +99,6 @@ export class Turnout implements Segment {
 				this.endpoints.push(new TurnoutEndpoint(endpoint as any, segment));
 			}
 		}
-
-		console.log(this.id, this.endpoints);
 	}
 
 	switchToProposedDirection() {
@@ -117,7 +115,7 @@ export class Turnout implements Segment {
 				throw new Error("Switch already switching in another direction");
 			}
 
-			console.log(`[TURNOUT SWITCH: ${this.id}] ${this.currentState} -> ${direction}`);
+			console.log(`[turnout/switch/${this.id}] ${this.currentState} -> ${direction}`);
 
 			if (this.switching && this.switching == direction) {
 				done();
@@ -132,6 +130,8 @@ export class Turnout implements Segment {
 				this.proposedState = null;
 				
 				this.currentState = direction;
+
+				console.log(`[turnout/switched/${this.id}] ${this.currentState} -> ${direction}`);
 
 				done();
 			}, this.switchingTime * 1000);
