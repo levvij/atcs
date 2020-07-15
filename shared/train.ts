@@ -155,7 +155,7 @@ export class Train {
 			return true;
 		});
 
-		return segments.reverse().find(s => s instanceof Turnout) as Turnout;
+		return segments.filter(s => s.reservedBy != this).find(s => s instanceof Turnout) as Turnout;
 	}
 
 	getDistanceToSegment(segment: Segment) {
