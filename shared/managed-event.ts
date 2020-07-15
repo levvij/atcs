@@ -15,7 +15,7 @@ export class ManagedEvent<TData = void> {
 	}
 
 	emit(data?: TData) {
-		console.log(`[event/${this.name}]`, data);
+		console.log(`[event/${this.name}]`);
 
 		for (let sub of this.subscribers) {
 			sub(data);
