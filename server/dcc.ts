@@ -2,7 +2,11 @@ import { ManagedEvent } from "../shared/managed-event";
 
 // Z21 DCC Implementation
 // Based on official Z21 LAN Protocol Specification 1.09en
+const dgram = require("dgram");
+const client = dgram.createSocket("udp4");
+
 export class DCC {
+	client;
 	serialNumber: string;
 
 	ontrackpoweroff = new ManagedEvent("Track power off");
@@ -15,7 +19,18 @@ export class DCC {
 	programmingTrackCurrent: number;
 	temperature: number;
 
-	constructor() {}
+	constructor() {
+		const dcc = this;
+
+		client.on("message", function (message, remote) {
+			console.log(`UDP message received from: ${remote.address}:${remote.port}`, message);
+
+			const packet = DCCPacket.fromData(message);
+			console.log(packet);
+
+			dcc.ondata(packet);
+		});
+	}
 
 	start() {
 		return new Promise(done => {
@@ -34,9 +49,9 @@ export class DCC {
 
 					// gets system status every ten seconds
 					// includes track current, base station temperature etc
-					setInterval(() => {
-						new DCCPacket(0x85).send();
-					}, 10000);
+					//// setInterval(() => {
+					//// 	new DCCPacket(0x85).send();
+					//// }, 10000);
 
 					done();
 				}
@@ -55,6 +70,42 @@ export class DCC {
 
 	stop() {
 		new DCCPacket(0x40, [0x80, 0x80]).send();
+	}
+
+	stopEXp() {
+		new DCCPacket(0x40, [0x80, DCCPacket.XOR]).send();
+	}
+
+	emergencyStopLoco(loco: number) {
+		this.rawSpeedControl(loco, false, 1);
+	}
+
+	setSpeed(loco: number, reversed: boolean, speed: number) {
+		if (speed > 128) {
+			throw new Error("Max speed step is 128");
+		}
+
+		if (speed < 0) {
+			throw new Error("Min speed step is 0");
+		}
+
+		this.rawSpeedControl(loco, reversed, speed >= 1 ? Math.floor(speed / 128 * 126) + 2 : 0);
+	}
+
+	private rawSpeedControl(loco: number, reversed: boolean, speed: number) {
+		console.log(`[dcc/speed-control] ${loco} to ${speed} (${reversed ? "F" : "R"})`);
+
+		new DCCPacket(0x40, [
+			0xe4,
+			0x13,
+			...this.toUDPLocoAddress(loco),
+			(reversed ? 0b10000000 : 0) + speed,
+			DCCPacket.XOR
+		]).send();
+	}
+
+	private toUDPLocoAddress(loco: number) {
+		return [0x00, loco];
 	}
 
 	ondata(packet: DCCPacket) {
@@ -113,12 +164,48 @@ export class DCCPacket {
 		public group: number = 0, 
 	) {}
 
+	static XOR = -1234;
+
+	static fromData(data: Uint8Array) {
+		return new DCCPacket(
+			data[2],
+			[...data.slice(4)],
+			data[3]
+		);
+	}
+
 	get length() {
 		return 4 + this.data.length;
 	}
 
 	send() {
-		console.log(`Z21:${this.length.toString(16).padStart(4, "0")}:${this.header.toString(16).padStart(2, "0")}${this.group.toString(16).padStart(2, "0")}:${this.data.map(e => e.toString(16).padStart(2, "0")).join("-")}`);
+		if (this.data[this.data.length - 1] == DCCPacket.XOR) {
+			let v = this.data[0];
+
+			for (let i = 1; i < this.data.length - 1; i++) {
+				v = v ^ this.data[i];
+			}
+
+			this.data[this.data.length - 1] = v;
+		}
+
+		const buffer = new Buffer([
+			this.length % 0xff,
+			Math.floor(this.length / 0xff),
+			this.header % 0xff,
+			Math.floor(this.header / 0xff),
+			...this.data
+		]);
+
+		console.log(`[z21] ${buffer.toString("hex").split("").map((c, i) => i % 2 ? c + " " : c).join("")}`);
+
+		client.send(buffer, 0, buffer.length, 21106, "192.168.1.111", function(err, bytes) {
+			if (err) {
+				console.error(`UDP message send error:`, err);
+			} else {
+				console.log(`UDP message sent`);
+			}
+		});
 	}
 
 	static toLittleEndian(number, bytes) {

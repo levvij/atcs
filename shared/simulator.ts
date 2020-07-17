@@ -1,10 +1,11 @@
 import { Layout } from "./layout";
-import { Train } from "./train";
+import { Train, Locomotive } from "./train";
 import { Bumper, Block, Turnout, Segment } from "./segment";
 import { ManagedEvent } from "./managed-event";
 
 export class Simulator {
 	lastTick: number;
+	lastUpdatedSpeed: number;
 
 	ontournoutreserve = new ManagedEvent<Turnout>("turnout reservation");
 	onblockreserve = new ManagedEvent<Block>("block reservation");

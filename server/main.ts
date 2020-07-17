@@ -2,10 +2,15 @@ import { testLayout1 } from "../shared/layout";
 import { Bridge } from "./bridge";
 import { Turnout } from "../shared/segment";
 import { Simulator } from "../shared/simulator";
+import { DCC } from "./dcc";
+import { Locomotive } from "../shared/train";
 
 const express = require("express");
 const ws = require("express-ws");
 const fs = require("fs");
+
+const dcc = new DCC();
+dcc.start();
 
 const app = express();
 ws(app);
@@ -17,6 +22,24 @@ layout.resolveConnections();
 
 for (let train of layout.trains) {
 	const simulator = new Simulator(layout, train);
+	let lastUpdatedSpeed = 0;
+
+	setInterval(() => {
+		if (Math.abs(train.speed - lastUpdatedSpeed) > 1) {
+			for (let locomotive of train.cars) {
+				if (locomotive instanceof Locomotive) {
+					dcc.setSpeed(
+						locomotive.dccInfo.address, 
+						train.location.direction, 
+						Math.min(train.speed / locomotive.dccInfo.maxSpeed * 128, 128)
+					);
+				}
+			}
+			
+
+			lastUpdatedSpeed = train.speed;
+		}
+	}, 100);
 
 	simulator.onblockreserve.subscribe(block => {
 		block.reservedBy = train;

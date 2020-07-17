@@ -281,7 +281,7 @@ export class RollingStock {
 
 export class Locomotive extends RollingStock {
 	constructor(
-		public address: number, 
+		public dccInfo: LocomotiveDCCInfo, 
 		name: string, 
 		length: number, 
 		tags: RollingStockTag[]
@@ -293,7 +293,7 @@ export class Locomotive extends RollingStock {
 		return {
 			type: "locomotive",
 			location: this.location.toData(),
-			address: this.address,
+			address: this.dccInfo.address,
 			name: this.name,
 			length: this.length,
 			tags: this.tags.map(t => t.toData())
@@ -306,6 +306,11 @@ export class Locomotive extends RollingStock {
 
 		return car;
 	}
+}
+
+export class LocomotiveDCCInfo {
+	address: number;
+	maxSpeed: number;
 }
 
 export class Wagon extends RollingStock {

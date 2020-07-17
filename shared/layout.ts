@@ -238,7 +238,10 @@ testLayout1.segments = [
 
 testLayout1.trains = [
 	new Train(34, [
-		new Locomotive(412, "Re 460.1.23", 18.5, [
+		new Locomotive({
+			address: 3,
+			maxSpeed: 140
+		}, "Re 460.1.23", 18.5, [
 			new RollingStockIdentificationTag(18.5 / 2, 13144234),
 			new PositiveRollingStockMagnet(3), 
 			new NegativeRollingStockMagnet(15.5)
@@ -253,7 +256,7 @@ testLayout1.trains = [
 	]).placeOn(testLayout1.segments.find(s => s.id == "b1"))
 ];
 
-testLayout1.trains[0].maxSpeed = 250;
+testLayout1.trains[0].maxSpeed = 140;
 testLayout1.trains[0].maxAcceleration = 15;
 testLayout1.trains[0].minAcceleration = -25;
 testLayout1.trains[0].reactionDistance = 0;
