@@ -1,4 +1,3 @@
-import { testLayout1 } from "../../shared/layout";
 import { Bridge } from "./bridge";
 import { Simulator } from "../../shared/simulator";
 import { LookAhead } from "./look-ahead";
@@ -6,9 +5,10 @@ import { Controls } from "./controls";
 import { Turnout } from "../../shared/segment";
 import { Gauge } from "./gauge";
 import { TrainView } from "./train-view";
+import { test0 } from "../../shared/layouts/test0";
 
 window.onload = async () => {
-	const layout = testLayout1;
+	const layout = test0;
 	layout.resolveConnections();
 	layout.trains = [];
 

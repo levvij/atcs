@@ -239,8 +239,11 @@ export class LookAhead {
 			this.foregroundCtx.stroke();
 			
 			// speed up and speed down indicators
-			this.foregroundCtx.fillText(`${segment.id} ${optimal == segment.speed.optimal ? "" : (optimal < segment.speed.optimal ? `▲ ${segment.speed.optimal}` : `▼ ${segment.speed.optimal}`)}`, x + this.width / 40, this.toPosition(distance - segment.length));
-			optimal = segment.speed.optimal;
+			if (segment != this.train.location.segment) {
+				this.foregroundCtx.fillText(`${segment.id} ${optimal == segment.speed.optimal ? "" : (optimal < segment.speed.optimal ? `▲ ${segment.speed.optimal}` : `▼ ${segment.speed.optimal}`)}`, x + this.width / 40, this.toPosition(distance - segment.length));
+			
+				optimal = segment.speed.optimal;
+			}
 		}
 		
 		this.segmentLengthLabel.update(this.train.location.segment.length);

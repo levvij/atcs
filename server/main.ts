@@ -1,9 +1,9 @@
-import { testLayout1 } from "../shared/layout";
 import { Bridge } from "./bridge";
 import { Turnout } from "../shared/segment";
 import { Simulator } from "../shared/simulator";
 import { DCC } from "./dcc";
 import { Locomotive } from "../shared/train";
+import { test0 } from "../shared/layouts/test0";
 
 const express = require("express");
 const ws = require("express-ws");
@@ -17,7 +17,7 @@ ws(app);
 
 Bridge.global = new Bridge();
 
-const layout = testLayout1;
+const layout = test0;
 layout.resolveConnections();
 
 for (let train of layout.trains) {
