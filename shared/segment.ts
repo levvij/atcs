@@ -9,6 +9,9 @@ export interface Segment {
 	reservedBy?: Train;
 	speed: Speed;
 
+	curve: number;
+	elevation: number;
+	
 	resolveConnections(layout: Layout);
 }
 
@@ -18,6 +21,12 @@ export class Block implements Segment {
 
 	reservedBy?: Train;
 
+	curve: number;
+	curveDelta: number;
+
+	elevation: number;
+	elevationDelta: number;
+
 	constructor(
 		public id: string,
 		public length: number,
@@ -25,7 +34,40 @@ export class Block implements Segment {
 		public sensors: SegmentSensor[],
 		public startId?: string,
 		public endId?: string
-	) {}
+	) {
+		this.curve = 0;
+		this.elevation = 0;
+	}
+
+	curveRight(degrees: number) {
+		this.curveDelta = degrees;
+
+		return this;
+	}
+
+	curveLeft(degrees: number) {
+		this.curveDelta = -degrees;
+
+		return this;
+	}
+
+	atHeight(height: number) {
+		this.elevation = height;
+
+		return this;
+	}
+
+	incline(height: number) {
+		this.elevationDelta = height;
+
+		return this;
+	}
+
+	decline(height: number) {
+		this.elevationDelta = -height;
+
+		return this;
+	}
 
 	resolveConnections(layout: Layout) {
 		if (this.startId) {
@@ -34,6 +76,9 @@ export class Block implements Segment {
 			if (!this.start) {
 				throw new Error(`Start segment '${this.startId}' not found`);
 			}
+
+			this.elevation = this.start.elevation + this.elevationDelta;
+			this.curve = (this.start.curve + this.curveDelta) % 360;
 		} else {
 			this.start = new Bumper("es-" + this.id, this.id);
 		}
@@ -41,7 +86,7 @@ export class Block implements Segment {
 		if (this.endId) {
 			this.end = layout.segments.find(s => s.id == this.endId);
 
-			if (!this.start) {
+			if (!this.end) {
 				throw new Error(`End segment '${this.endId}' not found`);
 			}
 		} else {
@@ -60,6 +105,9 @@ export class Turnout implements Segment {
 	defaultState: "left" | "middle" | "right";
 	proposedState: null | "left" | "middle" | "right";
 	currentState: "left" | "middle" | "right";
+
+	curve: number;
+	elevation: number;
 
 	constructor(
 		public id: string,
@@ -99,6 +147,9 @@ export class Turnout implements Segment {
 				this.endpoints.push(new TurnoutEndpoint(endpoint as any, segment));
 			}
 		}
+
+		this.curve = this.commonEndpoint.curve;
+		this.elevation = this.commonEndpoint.elevation;
 	}
 
 	switchToProposedDirection() {
@@ -172,6 +223,9 @@ export class Bumper implements Segment {
 	length = 0;
 
 	end: Segment;
+
+	curve = 0;
+	elevation = 0;
 
 	constructor(
 		public id: string,
