@@ -5,6 +5,8 @@ import { ManagedEvent } from "../shared/managed-event";
 const dgram = require("dgram");
 const client = dgram.createSocket("udp4");
 
+let started = false;
+
 export class DCC {
 	client;
 	serialNumber: string;
@@ -33,6 +35,8 @@ export class DCC {
 	}
 
 	start() {
+		started = true;
+
 		return new Promise(done => {
 			// get serial number
 			// this will initialzize the connection
@@ -179,6 +183,10 @@ export class DCCPacket {
 	}
 
 	send() {
+		if (!started) {
+			return;
+		}
+
 		if (this.data[this.data.length - 1] == DCCPacket.XOR) {
 			let v = this.data[0];
 
@@ -189,7 +197,7 @@ export class DCCPacket {
 			this.data[this.data.length - 1] = v;
 		}
 
-		const buffer = new Buffer([
+		const buffer = Buffer.from([
 			this.length % 0xff,
 			Math.floor(this.length / 0xff),
 			this.header % 0xff,

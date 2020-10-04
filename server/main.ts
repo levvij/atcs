@@ -10,7 +10,10 @@ const ws = require("express-ws");
 const fs = require("fs");
 
 const dcc = new DCC();
-dcc.start();
+
+if (!process.argv.includes("--no-dcc")) {
+	dcc.start();
+}
 
 const app = express();
 ws(app);

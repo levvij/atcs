@@ -11,7 +11,10 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/server/dist/server/main.js",
+			"program": "${workspaceFolder}/server/dist/server/main.js",
+			"args": [
+				"--no-dcc"
+			],
             "preLaunchTask": "build app",
             "outFiles": [
                 "${workspaceFolder}/server/dist/**/*.js"
