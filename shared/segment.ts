@@ -11,6 +11,8 @@ export interface Segment {
 
 	curve: number;
 	elevation: number;
+
+	elevationAt(distance: number): number;
 	
 	resolveConnections(layout: Layout);
 }
@@ -22,10 +24,10 @@ export class Block implements Segment {
 	reservedBy?: Train;
 
 	curve: number;
-	curveDelta: number;
+	curveDelta: number = 0;
 
 	elevation: number;
-	elevationDelta: number;
+	elevationDelta: number = 0;
 
 	constructor(
 		public id: string,
@@ -37,6 +39,18 @@ export class Block implements Segment {
 	) {
 		this.curve = 0;
 		this.elevation = 0;
+	}
+
+	elevationAt(distance: number) {
+		let startElevation;
+
+		if (this.start) {
+			startElevation = this.start.elevation;
+		} else {
+			startElevation = this.elevation - this.elevationDelta;
+		}
+
+		return startElevation + (1 / this.length * distance) * this.elevationDelta;
 	}
 
 	curveRight(degrees: number) {
@@ -81,6 +95,9 @@ export class Block implements Segment {
 			this.curve = (this.start.curve + this.curveDelta) % 360;
 		} else {
 			this.start = new Bumper("es-" + this.id, this.id);
+
+			layout.segments.push(this.start);
+			this.start.resolveConnections(layout);
 		}
 
 		if (this.endId) {
@@ -89,8 +106,16 @@ export class Block implements Segment {
 			if (!this.end) {
 				throw new Error(`End segment '${this.endId}' not found`);
 			}
+
+			if (!this.start || this.elevation == NaN) {
+				this.elevation = this.end.elevation - this.elevationDelta;
+				this.curve = (this.end.curve - this.curveDelta) % 360;
+			}
 		} else {
-			this.start = new Bumper("ee-" + this.id, this.id);
+			this.end = new Bumper("ee-" + this.id, this.id);
+
+			layout.segments.push(this.end);
+			this.end.resolveConnections(layout);
 		}
 	}
 }
@@ -127,6 +152,10 @@ export class Turnout implements Segment {
 		this.endpoints = [];
 
 		this.defaultState = this.endpointIds.default;
+	}
+
+	elevationAt(distance: number): number {
+		return this.elevation;
 	}
 
 	resolveConnections(layout: Layout) {
@@ -224,13 +253,17 @@ export class Bumper implements Segment {
 
 	end: Segment;
 
-	curve = 0;
-	elevation = 0;
+	curve;
+	elevation;
 
 	constructor(
 		public id: string,
 		public endId: string
 	) {}
+
+	elevationAt(distance: number): number {
+		return this.elevation;
+	}
 
 	resolveConnections(layout: Layout) {
 		this.end = layout.segments.find(s => s.id == this.endId);
@@ -238,5 +271,8 @@ export class Bumper implements Segment {
 		if (!this.end) {
 			throw new Error(`End segment '${this.endId}' not found`);
 		}
+
+		this.elevation = this.end.elevation;
+		this.curve = this.end.curve;
 	}
 }

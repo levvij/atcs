@@ -5,6 +5,8 @@ import { DCC } from "./dcc";
 import { Locomotive } from "../shared/train";
 import { test0 } from "../shared/layouts/test0";
 
+import "../shared/polyfills";
+
 const express = require("express");
 const ws = require("express-ws");
 const fs = require("fs");

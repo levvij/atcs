@@ -80,15 +80,6 @@ export class LookAhead {
 			}[this.train.location.segment.currentState] / this.train.location.segment.length * this.train.location.distance;
 		}
 		
-		// viewing distance
-		/* this.foregroundCtx.lineWidth = 2;
-		
-		this.foregroundCtx.strokeStyle = "#ff0";
-		this.foregroundCtx.beginPath();
-		this.foregroundCtx.moveTo(0, this.toPosition(this.train.viewingDistance));
-		this.foregroundCtx.lineTo(this.width, this.toPosition(data.train.viewingDistance));
-		this.foregroundCtx.stroke();*/
-		
 		// breaking distances
 		this.foregroundCtx.lineWidth = this.width;
 		
@@ -109,28 +100,46 @@ export class LookAhead {
 		let optimal = this.train.currentOptimalSpeed;
 		const nextUnreservedTurnout = this.train.getNextControllableTurnout(this.max);
 		
+		let lastSegmentLineWidth = 3;
+
+		if (this.train.trailingSegment) {
+			lastSegmentLineWidth = 3 + Math.range(-1.5, this.train.trailingSegment.elevation - this.train.estimatedElevation, 1.5);
+		}
+		
 		// segments
 		for (let segment of segments) {
+			const segmentLineWidth = 3 + Math.range(-1.5, segment.elevation - this.train.estimatedElevation, 1.5);
+
 			if (segment instanceof Block) {
-				this.foregroundCtx.lineWidth = 5;
+				const curveDistance = segment.length * this.width / 2000;
+				const curve = (segment.curveDelta == 0 ? 0 : segment.curveDelta > 0 ? curveDistance : -curveDistance);
+
+				if (this.train.location.segment == segment) {
+					x -= (1 / segment.length * this.train.location.distance) * curve;
+				}
 				
 				this.foregroundCtx.beginPath();
-				this.foregroundCtx.moveTo(x, this.toPosition(distance));
-				this.foregroundCtx.lineTo(x, this.toPosition(distance + segment.length));
+				this.foregroundCtx.moveTo(x - lastSegmentLineWidth, this.toPosition(distance));
+				this.foregroundCtx.lineTo(x + lastSegmentLineWidth, this.toPosition(distance));
+				this.foregroundCtx.lineTo(x + segmentLineWidth + curve, this.toPosition(distance + segment.length));
+				this.foregroundCtx.lineTo(x - segmentLineWidth + curve, this.toPosition(distance + segment.length));
+				this.foregroundCtx.closePath();
 
 				if (segment.reservedBy == this.train) {
-					this.foregroundCtx.strokeStyle = this.foregroundCtx.fillStyle = "#0f0";
+					this.foregroundCtx.fillStyle = this.foregroundCtx.fillStyle = "#0f0";
 				} else {
-					this.foregroundCtx.strokeStyle = this.foregroundCtx.fillStyle = "#fff";
+					this.foregroundCtx.fillStyle = this.foregroundCtx.fillStyle = "#fff";
 				}
 
-				this.foregroundCtx.stroke();
+				this.foregroundCtx.fill();
 
 				distance += segment.length;
+				x += curve;
+				lastSegmentLineWidth = segmentLineWidth;
 			} else if (segment instanceof Turnout) {
 				let originX = x;
 				
-				this.foregroundCtx.lineWidth = 5;
+				this.foregroundCtx.lineWidth = segmentLineWidth * 2;
 				
 				if (nextUnreservedTurnout == segment) {
 					this.foregroundCtx.fillStyle = "#55f4";
@@ -156,9 +165,9 @@ export class LookAhead {
 								this.foregroundCtx.strokeStyle = "#00f";
 								
 								if (segment.switching == sideName) {
-									this.foregroundCtx.lineWidth = 4;
+									this.foregroundCtx.lineWidth = segmentLineWidth * 2;
 								} else {
-									this.foregroundCtx.lineWidth = 2;
+									this.foregroundCtx.lineWidth = segmentLineWidth;
 								}
 							} else {
 								if (segment.currentState == sideName) {
@@ -199,9 +208,9 @@ export class LookAhead {
 								this.foregroundCtx.strokeStyle = "#00f";
 								
 								if (segment.switching == sideName) {
-									this.foregroundCtx.lineWidth = 4;
+									this.foregroundCtx.lineWidth = segmentLineWidth * 2;
 								} else {
-									this.foregroundCtx.lineWidth = 2;
+									this.foregroundCtx.lineWidth = segmentLineWidth;
 								}
 							} else {
 								if (segments.length && segments[segments.length - 1] == direction.segment) {

@@ -138,6 +138,10 @@ export class Train {
 		return total / this.length;
 	}
 
+	get estimatedElevation() {
+		return this.location.segment.elevationAt(this.location.distance);
+	}
+
 	getNextUnreservedTurnout() {
 		let last = false;
 

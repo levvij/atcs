@@ -7,6 +7,8 @@ import { Gauge } from "./gauge";
 import { TrainView } from "./train-view";
 import { test0 } from "../../shared/layouts/test0";
 
+import "../../shared/polyfills";
+
 window.onload = async () => {
 	const layout = test0;
 	layout.resolveConnections();
