@@ -12,6 +12,19 @@
                 "<node_internals>/**"
             ],
 			"program": "${workspaceFolder}/server/dist/server/main.js",
+            "preLaunchTask": "build app",
+            "outFiles": [
+                "${workspaceFolder}/server/dist/**/*.js"
+            ]
+		},
+		{
+            "type": "node",
+            "request": "launch",
+            "name": "Start ATCS Server (without DCC station)",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+			"program": "${workspaceFolder}/server/dist/server/main.js",
 			"args": [
 				"--no-dcc"
 			],
