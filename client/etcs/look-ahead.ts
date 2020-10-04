@@ -101,7 +101,7 @@ export class LookAhead {
 		
 		this.foregroundCtx.font = `${this.width / 30}px Arial`;
 		
-		let optimal = this.train.currentOptimalSpeed;
+		let optimal = this.train.location.segment.speed.optimal;
 		const nextUnreservedTurnout = this.train.getNextControllableTurnout(this.max);
 		
 		let lastSegmentLineWidth = 3;
@@ -253,7 +253,13 @@ export class LookAhead {
 			
 			// speed up and speed down indicators
 			if (segment != this.train.location.segment) {
-				this.foregroundCtx.fillText(`${segment.id} ${optimal == segment.speed.optimal ? "" : (optimal < segment.speed.optimal ? `▲ ${segment.speed.optimal}` : `▼ ${segment.speed.optimal}`)}`, x + this.width / 40, this.toPosition(distance - segment.length));
+				let text = segment.id;
+
+				if (optimal != segment.speed.optimal) {
+					text += ` ${optimal < segment.speed.optimal ? "▲" : "▼"} ${segment.speed.optimal}`;
+				}
+
+				this.foregroundCtx.fillText(text, x + this.width / 40, this.toPosition(distance - segment.length));
 			
 				optimal = segment.speed.optimal;
 			}
