@@ -7,10 +7,10 @@ import { Train, Locomotive, RollingStockIdentificationTag, PositiveRollingStockM
 export const test0 = new Layout();
 test0.segments = [
 	new Block("a.a", 60.2 * 0.87, { max: 30, optimal: 20 }, [], undefined, "a.m")
-		.atHeight(50),
+		.atHeight(2 * 0.87),
 
 	new Block("a.m", 71.3 * 0.87, { max: 50, optimal: 40 }, [], "a.a", "t1")
-		.decline(50)
+		.decline(2 * 0.87)
 		.curveLeft(45),
 	
 	new Turnout("t1", 43.3 / 2 * 0.87, { max: 80, optimal: 60 }, 20, 3, false, {
@@ -25,13 +25,13 @@ test0.segments = [
 
 	new Block("m.ne", 82.5 * 0.87, { max: 70, optimal: 50 }, [], "m.se", "m.n")
 		.curveLeft(90)
-		.incline(2),
+		.incline(1 * 0.87),
 
 	new Block("m.n", 47.8 * 0.87, { max: 70, optimal: 50 }, [], "m.ne", "m.nw"),
 
 	new Block("m.nw", 79.2 * 0.87, { max: 70, optimal: 50 }, [], "m.n", "m.sw")
 		.curveLeft(90)
-		.decline(2),
+		.decline(1 * 0.87),
 
 	new Block("m.sw", 82.5 * 0.87, { max: 80, optimal: 60 }, [], "m.nw", "t1")
 		.curveLeft(90)

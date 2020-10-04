@@ -11,6 +11,7 @@ export interface Segment {
 
 	curve: number;
 	elevation: number;
+	elevationDelta: number;
 
 	elevationAt(distance: number): number;
 	
@@ -133,6 +134,7 @@ export class Turnout implements Segment {
 
 	curve: number;
 	elevation: number;
+	elevationDelta: number = 0;
 
 	constructor(
 		public id: string,
@@ -255,6 +257,7 @@ export class Bumper implements Segment {
 
 	curve;
 	elevation;
+	elevationDelta: number = 0;
 
 	constructor(
 		public id: string,

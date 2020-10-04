@@ -22,6 +22,8 @@ export class LookAhead {
 	currentSegmentLabel: Label;
 	currentMaxSpeedLabel: Label;
 	currentOptimalSpeedLabel: Label;
+	estimatedElevationLabel: Label;
+	inclinePercentageLabel: Label;
 
 	constructor(
 		public element: HTMLElement,
@@ -56,6 +58,8 @@ export class LookAhead {
 		this.currentSegmentLabel = new Label("current-segment");
 		this.currentMaxSpeedLabel = new Label("current-max-speed");
 		this.currentOptimalSpeedLabel = new Label("current-optimal-speed");
+		this.estimatedElevationLabel = new Label("estimated-elevation");
+		this.inclinePercentageLabel = new Label("incline-percentage");
 		
 		this.update();
 	}
@@ -103,12 +107,12 @@ export class LookAhead {
 		let lastSegmentLineWidth = 3;
 
 		if (this.train.trailingSegment) {
-			lastSegmentLineWidth = 3 + Math.range(-1.5, this.train.trailingSegment.elevation - this.train.estimatedElevation, 1.5);
+			lastSegmentLineWidth = 3 + Math.range(-1, this.train.trailingSegment.elevation - this.train.estimatedElevation, 1) * 1.5;
 		}
 		
 		// segments
 		for (let segment of segments) {
-			const segmentLineWidth = 3 + Math.range(-1.5, segment.elevation - this.train.estimatedElevation, 1.5);
+			const segmentLineWidth = 3 + Math.range(-1, segment.elevation - this.train.estimatedElevation, 1) * 1.5;
 
 			if (segment instanceof Block) {
 				const curveDistance = segment.length * this.width / 2000;
@@ -263,6 +267,8 @@ export class LookAhead {
 		this.currentSegmentLabel.update(this.train.location.segment.id);
 		this.currentMaxSpeedLabel.update(this.train.location.segment.speed.max);
 		this.currentOptimalSpeedLabel.update(this.train.location.segment.speed.optimal);
+		this.estimatedElevationLabel.update(this.train.estimatedElevation);
+		this.inclinePercentageLabel.update(this.train.location.segment.elevationDelta / this.train.location.segment.length * 100);
 		
 		if (this.lastMax != this.max) {
 			this.updateBackground();
