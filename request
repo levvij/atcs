@@ -1,0 +1,14 @@
+RTP 1E 696969 magnetic-coupler-inspector/signal-strength/average
+start: 2023-12-04Z13:04:11.1223
+end: 2023-12-09Z13:04:11.1223
+sensor: 6
+
+RTP 1S 111111 sync
+
+RTP 1E 777777 detect/magnet
+d: +
+
+RTP 1E 777777 detect/magnet
+direction: negative
+
+RSTOP sync/lost-connection

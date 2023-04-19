@@ -1,0 +1,16 @@
+{
+	"type": "module",
+	"name": "acts",
+	"version": "0.0.0",
+	"scripts": {
+		"build": "tsc index.ts --target esnext --module nodenext --moduleResolution nodenext --outDir .built",
+		"start": "node .built/index.js",
+		"start:auto-request": "node .built/index.js < request"
+	},
+	"dependencies": {
+		"typescript": "^5.0.4"
+	},
+	"devDependencies": {
+		"@types/node": "^18.15.11"
+	}
+}
