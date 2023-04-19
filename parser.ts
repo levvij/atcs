@@ -45,7 +45,7 @@ export class CommandParser {
 				
 				this.command = '';
 			} else if (this.command.startsWith('RTP 1')) {
-				if (this.command.endsWith('\n\n') && /^RTP 1(E|S) [0-9a-f]{6} (((([a-z0-9]+\-)*[a-z0-9]+)\/)*(([a-z0-9]+\-)*[a-z0-9]+))+\n(([a-z0-9]+\-)*[a-z0-9]+(\: [a-zA-Z0-9\-\+\.\,\;\:\'\[\]\|\{\}\\]+)?\n)*\n$/.test(this.command)) {
+				if (this.command.endsWith('\n\n') && /^RTP 1(E|S|U) [0-9a-f]{6} (((([a-z0-9]+\-)*[a-z0-9]+)\/)*(([a-z0-9]+\-)*[a-z0-9]+))+\n(([a-z0-9]+\-)*[a-z0-9]+(\: [a-zA-Z0-9\-\+\.\,\;\:\'\[\]\|\{\}\\]+)?\n)*\n$/.test(this.command)) {
 					const device = {
 						type: this.command[5],
 						id: this.command.substring(7, 13)
@@ -84,7 +84,7 @@ export class CommandParser {
 					this.command = '';
 				}
 			} else if (this.command.startsWith('RTPC 1')) {
-				if (this.command.endsWith('\n\n') && /^RTPC 1(E|S) [0-9a-f]{6} (((([a-z0-9]+\-)*[a-z0-9]+)\/)*(([a-z0-9]+\-)*[a-z0-9]+))+\n(([a-z0-9]+\-)*[a-z0-9]+(\: [a-zA-Z0-9\-\+\.\,\;\:\'\[\]\|\{\}\\]+)?\n)*\n$/.test(this.command)) {
+				if (this.command.endsWith('\n\n') && /^RTPC 1(E|S|U) [0-9a-f]{6} (((([a-z0-9]+\-)*[a-z0-9]+)\/)*(([a-z0-9]+\-)*[a-z0-9]+))+\n(([a-z0-9]+\-)*[a-z0-9]+(\: [a-zA-Z0-9\-\+\.\,\;\:\'\[\]\|\{\}\\]+)?\n)*\n$/.test(this.command)) {
 					const device = {
 						type: this.command[6],
 						id: this.command.substring(8, 14)
