@@ -4,11 +4,13 @@
 	"version": "0.0.0",
 	"scripts": {
 		"build": "tsc index.ts --target esnext --module nodenext --moduleResolution nodenext --outDir .built",
-		"start": "node .built/index.js",
-		"start:auto-request": "node .built/index.js < request"
+		"start": "node --trace-uncaught .built/index.js",
+		"start:auto-request": "node --trace-uncaught .built/index.js < request"
 	},
 	"dependencies": {
-		"typescript": "^5.0.4"
+		"@types/xmldom": "^0.1.31",
+		"typescript": "^5.0.4",
+		"xmldom": "^0.6.0"
 	},
 	"devDependencies": {
 		"@types/node": "^18.15.11"

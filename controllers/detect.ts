@@ -4,11 +4,11 @@ export class DetectController {
 		state, s
 	} : { 
 		direction: 'positive' | 'negative', d: 'p' | 'n', 
-		state: boolean, s: 't' | 'f'
+		state: 'true' | 'false', s: 't' | 'f'
 	}) {
 		direction = direction || d == 'p' ? 'positive' : 'negative';
-		state = state || s == 't';
 		
-		console.log(`+ balise ${source.id} ${direction} ${state ? 'OVER' : 'out'}`);
+		const down = state ? state == 'true' : s == 't';
+		console.log(`+ balise ${source.id} ${direction} ${down ? 'OVER' : 'out'}`);
 	}
 }

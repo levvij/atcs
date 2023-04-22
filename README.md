@@ -5,7 +5,7 @@ Handles state management, routing and safety insurance of railway networks.
 This protocol allows devices and operators to interact with the controlling system.
 
 ```
-RTP 1U 123456 system/state
+RTP 1U 123456 system/ready
 
 ```
 

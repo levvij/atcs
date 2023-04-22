@@ -1,3 +1,4 @@
 .built/
+*.dot
 
 node_modules

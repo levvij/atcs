@@ -3,8 +3,12 @@ export class CommandParser {
 	continuous;
 	
 	constructor(
-		public root
-	) {}
+		public root,
+		private write: (data: Buffer) => void,
+		private ready = (path?: string) => {}
+	) {
+		setTimeout(() => this.ready());
+	}
 	
 	parse(data: Buffer) {
 		for (let byte of data) {
@@ -27,8 +31,10 @@ export class CommandParser {
 						offset = end + 1;
 					}
 					
-					this.continuous.controller(this.continuous.device, parameters);
+					this.execute(this.continuous.controller, this.continuous.device, parameters);
+					
 					this.command = '';
+					this.ready(this.continuous.path);
 				}
 			} else if (this.command == 'RS') {
 				process.stderr.write('---STOP--- ');
@@ -37,6 +43,7 @@ export class CommandParser {
 					process.stderr.write(`---STOP---`);
 					
 					this.command = '';
+					this.ready();
 				} else if (this.command.length > 'RSTOP '.length) {
 					process.stderr.write(`${character} `);
 				}
@@ -44,6 +51,7 @@ export class CommandParser {
 				process.stdout.write('+');
 				
 				this.command = '';
+				this.ready();
 			} else if (this.command.startsWith('RTP 1')) {
 				if (this.command.endsWith('\n\n') && /^RTP 1(E|S|U) [0-9a-f]{6} (((([a-z0-9]+\-)*[a-z0-9]+)\/)*(([a-z0-9]+\-)*[a-z0-9]+))+\n(([a-z0-9]+\-)*[a-z0-9]+(\: [a-zA-Z0-9\-\+\.\,\;\:\'\[\]\|\{\}\\]+)?\n)*\n$/.test(this.command)) {
 					const device = {
@@ -76,12 +84,13 @@ export class CommandParser {
 					}
 					
 					if (typeof controller == 'function') {
-						(controller as Function)(device, parameters);
+						this.execute(controller, device, parameters);
 					} else {
 						process.stderr.write(`invalid path ${path}\n`);
 					}
 				
 					this.command = '';
+					this.ready();
 				}
 			} else if (this.command.startsWith('RTPC 1')) {
 				if (this.command.endsWith('\n\n') && /^RTPC 1(E|S|U) [0-9a-f]{6} (((([a-z0-9]+\-)*[a-z0-9]+)\/)*(([a-z0-9]+\-)*[a-z0-9]+))+\n(([a-z0-9]+\-)*[a-z0-9]+(\: [a-zA-Z0-9\-\+\.\,\;\:\'\[\]\|\{\}\\]+)?\n)*\n$/.test(this.command)) {
@@ -119,6 +128,7 @@ export class CommandParser {
 					}
 					
 					this.continuous = { 
+						path,
 						device, 
 						controller, 
 						parameters
@@ -127,8 +137,24 @@ export class CommandParser {
 					process.stdout.write(`login ${device.id} on ${path}\n`);
 				
 					this.command = '';
+					this.ready(path);
 				}
+			} else if (this.command.endsWith('\n\n')) {
+				process.stderr.write(`invalid command ${this.command.trim()}`);
+				
+				this.write(Buffer.from('RSTOP invalid command\n\n'));
+				
+				this.command = '';
+				this.ready();
 			}
+		}
+	}
+	
+	execute(controller, device, parameters) {
+		const response = controller(device, parameters);
+		
+		if (response === true) {
+			this.write(Buffer.from('ROK'));
 		}
 	}
 }
