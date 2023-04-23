@@ -3,10 +3,11 @@ import { Router } from "./router.js";
 import { Section } from "./section.js";
 
 export class Route {
+	in: Section;
+	out: Section;
+	
 	constructor(
 		public name: string,
-		public source: Section,
-		public destination: Section,
 		public router: Router,
 	) {}
 	

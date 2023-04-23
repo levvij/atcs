@@ -54,7 +54,11 @@ export class Layout {
 		let dot = 'digraph G {';
 		
 		for (let area of this.areas) {
-			dot += area.toDot();
+			dot += area.toDotDefinition();
+		}
+		
+		for (let area of this.areas) {
+			dot += area.toDotConnection();
 		}
 		
 		writeFileSync('layout.dot', `${dot}}`);
@@ -146,18 +150,6 @@ export class Layout {
 				}
 			}
 			
-			if (child.tagName == 'next') {
-				const routerName = child.getAttribute('router');
-				
-				if (routerName) {
-					const router = new Router(routerName, area);
-					
-					section.next = router;
-				} else {
-					
-				}
-			}
-			
 			child = child.nextSibling;
 		}
 	}
@@ -166,68 +158,57 @@ export class Layout {
 		let child = source.firstChild;
 		
 		while (child) {
-			if (child.tagName == 'next') {
-				if (child.getAttribute('route')) {
-					const next = this.findSectionOrRouter(child.getAttribute('section'), section.area);
-					
-					if (next instanceof Section) {
-						const router = new Router(child.getAttribute('router'), section.area);
-						
-						section.next = new Route(child.getAttribute('route'), next, section, router);
-						router.routes.push(section.next);
-					} else {
-						section.next = next.routes.find(route => route.name == child.getAttribute('route'))!;	
-					}
-				} else if (child.getAttribute('router')) {
-					let route = child.firstChild;
-					
-					while (route) {
-						if (route.tagName == 'route') {
-							const router = section.next as Router;
-							
-							router.routes.push(new Route(
-								route.getAttribute('name'), 
-								section, 
-								this.findSection(route.getAttribute('section'), section.area),
-								router
-							));
-						}
-						
-						route = route.nextSibling;
-					}
-				} else {
-					section.next = this.findSectionOrRouter(child.getAttribute('section'), section.area)!;
-				}
+			if (child.tagName == 'out') {
+				const out = this.findSection(child.getAttribute('section'), section.area);
+				
+				section.out = out;
+				out.in = section;
 			}
 			
 			child = child.nextSibling;
 		}
 	}
 	
-	findSection(path: string, base: Area) {
-		const localSection = base.sections.find(section => section.name == path);
+	findSection(path: string, base: Area, source = base) {
+		const parts = path.split('.');
 		
-		if (localSection) {
+		if (parts.length == 0) {
+			throw `section '${path}' not found from '${source.name}': invalid name`;
+		}
+		
+		if (parts.length == 1) {
+			const localSection = base.sections.find(section => section.name == parts[0]);
+			
+			if (!localSection) {
+				throw `section '${path}' not found from '${source.name}': section does not exist in '${base.name}'`;
+			}
+			
 			return localSection;
 		}
 		
-		throw `section '${path}' not found from '${base.name}'`;
-	}
-	
-	findSectionOrRouter(path: string, base: Area) {
-		const localSection = base.sections.find(section => section.name == path);
+		const sectionName = parts.pop()!;
 		
-		if (localSection) {
-			return localSection;
+		let area = base;
+		
+		for (let index = 0; index < parts.length; index++) {
+			if (!area.parent) {
+				throw `section '${path}' could not be found from '${source.name}': area '${area.name}' does not have a parent`;
+			}
+			
+			area = area.parent!;
 		}
 		
-		const localRoute = base.routers.find(router => router.name == path);
-		
-		if (localRoute) {
-			return localRoute;
+		for (let part of parts) {
+			const child = area.children.find(child => child.name == part);
+			
+			if (!child) {
+				throw `section '${path}' could not be found from '${source.name}': area '${area.name}' does not have a child named '${part}'`;
+			}
+			
+			area = child;
 		}
 		
-		throw `section or route '${path}' not found from '${base.name}'`;
+		return this.findSection(sectionName, area, source);
 	}
 	
 	loadRouter(source, area: Area) {
@@ -241,14 +222,13 @@ export class Layout {
 		
 		while (child) {
 			if (child.tagName == 'route') {
-				const parent = router.parent as Area;
+				const route = new Route(child.getAttribute('name'), router);
 				
-				const route = new Route(
-					child.getAttribute('name'), 
-					this.findSection(child.getAttribute('source'), parent),
-					this.findSection(child.getAttribute('destination'), parent),
-					router
-				);
+				route.in = this.findSection(child.getAttribute('in'), router.area);
+				route.in.out = route;
+				
+				route.out = this.findSection(child.getAttribute('out'), router.area);
+				route.out.in = route;
 				
 				router.routes.push(route);
 			}
