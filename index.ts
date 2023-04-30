@@ -2,7 +2,7 @@ import { readFileSync } from 'fs';
 import { createServer } from 'net';
 import { RootController } from './controllers/index.js';
 import { CommandParser } from './parser.js';
-import { Layout } from './layout.js';
+import { Layout } from './layout/index.js';
 
 process.stdout.write(`ACTS ${JSON.parse(readFileSync('package.json').toString()).version}\n`);
 

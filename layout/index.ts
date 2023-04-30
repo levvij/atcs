@@ -23,45 +23,51 @@ export class Layout {
 		
 		const railway = document.firstChild!;
 		this.name = railway.getAttribute('name');
+
+		const version = railway.getAttribute('version');
 		
-		let area = railway.firstChild;
-		
-		while (area) {
-			if (area.tagName == 'area') {
-				this.areas.push(this.loadArea(area));
-			}
+		if (version == '1') {
+			let area = railway.firstChild;
 			
-			area = area.nextSibling;
-		}
-		
-		area = railway.firstChild;
-		let index = 0;
-		
-		while (area) {
-			if (area.tagName == 'area') {
-				this.linkArea(area, this.areas[index]);
+			while (area) {
+				if (area.tagName == 'area') {
+					this.areas.push(this.loadArea(area));
+				}
 				
-				index++;
+				area = area.nextSibling;
 			}
 			
-			area = area.nextSibling;
+			area = railway.firstChild;
+			let index = 0;
+			
+			while (area) {
+				if (area.tagName == 'area') {
+					this.linkArea(area, this.areas[index]);
+					
+					index++;
+				}
+				
+				area = area.nextSibling;
+			}
+			
+			for (let area of this.areas) {
+				area.dump();
+			}
+			
+			let dot = 'digraph G {';
+			
+			for (let area of this.areas) {
+				dot += area.toDotDefinition();
+			}
+			
+			for (let area of this.areas) {
+				dot += area.toDotConnection();
+			}
+			
+			writeFileSync('layout.dot', `${dot}}`);
+		} else {
+			throw `unsupported railway definition file version '${version}' in '${this.path}'`;
 		}
-		
-		for (let area of this.areas) {
-			area.dump();
-		}
-		
-		let dot = 'digraph G {';
-		
-		for (let area of this.areas) {
-			dot += area.toDotDefinition();
-		}
-		
-		for (let area of this.areas) {
-			dot += area.toDotConnection();
-		}
-		
-		writeFileSync('layout.dot', `${dot}}`);
 	}
 	
 	loadArea(source, parent?: Area) {
