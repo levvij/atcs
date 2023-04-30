@@ -12,6 +12,6 @@ export class Route {
 	) {}
 	
 	dump() {
-		console.log(this.name);
+		console.log(`Route ${this.name}: ${this.in.domainName} → ${this.out.domainName}`);
 	}
 }

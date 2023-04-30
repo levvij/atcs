@@ -2,6 +2,7 @@ import { PowerDistrict } from "./power-district.js";
 import { Route } from "./route.js";
 import { Router } from "./router.js";
 import { Section } from "./section.js";
+import { Layout } from './index.js';
 
 export class Area {
 	children: Area[] = [];
@@ -12,41 +13,55 @@ export class Area {
 	
 	constructor(
 		public name: string,
-		public parent?: Area
+		public parent: Area | Layout
 	) {}
+
+	get domainName() {
+		if (this.parent instanceof Layout) {
+			return `${this.name}.${this.parent.name}`;
+		}
+
+		return `${this.name}.${this.parent.domainName}`;
+	}
 	
 	dump() {
-		console.group(`Area ${this.name}`);
+		console.group(`Area ${this.domainName}`);
 		
 		if (this.powerDistricts.length) {
-			console.log('power districts');
+			console.group('power districts');
 			
-			for (let district of this.powerDistricts) {
+			for (let district of this.powerDistricts) {
 				district.dump();
 			}
+
+			console.groupEnd();
 		}
 		
 		if (this.sections.length) {
-			console.log('sections');
+			console.group('sections');
 			
-			for (let section of this.sections) {
+			for (let section of this.sections) {
 				section.dump();
 			}
+
+			console.groupEnd();
 		}
 		
 		if (this.children.length) {
-			console.log('children');
+			console.group('children');
 			
-			for (let area of this.children) {
+			for (let area of this.children) {
 				area.dump();
 			}
+
+			console.groupEnd();
 		}
 		
 		console.groupEnd();
 	}
 	
 	toDotReference() {
-		return `cluster_${this.name.replace(/-/g, '_')}${this.parent ? this.parent.toDotReference() : ''}`;
+		return `cluster_${this.name.replace(/-/g, '_')}${this.parent instanceof Area ? this.parent.toDotReference() : ''}`;
 	}
 	
 	toDotDefinition() {

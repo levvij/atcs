@@ -5,6 +5,10 @@ export class PowerDistrict {
 		public name: string,
 		public area: Area
 	) {}
+
+	get domainName() {
+		return `${this.name}.${this.area.domainName}`;
+	}
 	
 	dump() {
 		console.log(this.name);

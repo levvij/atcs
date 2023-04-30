@@ -8,9 +8,19 @@ export class Router {
 		public name: string,
 		public area: Area
 	) {}
+
+	get domainName() {
+		return `${this.name}.${this.area.domainName}`;
+	}
 	
 	dump() {
-		console.log(this.name);
+		console.group(`Router ${this.domainName}`);
+
+		for (let route of this.routes) {
+			route.dump();
+		}
+
+		console.groupEnd();
 	}
 	
 	toDotReference() {

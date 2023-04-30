@@ -4,7 +4,7 @@ export class DetectController {
 		state, s
 	} : { 
 		direction: 'positive' | 'negative', d: 'p' | 'n', 
-		state: 'true' | 'false', s: 't' | 'f'
+		state: 'true' | 'false', s: 't' | 'f'
 	}) {
 		direction = direction || d == 'p' ? 'positive' : 'negative';
 		

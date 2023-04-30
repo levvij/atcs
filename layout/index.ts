@@ -31,7 +31,7 @@ export class Layout {
 			
 			while (area) {
 				if (area.tagName == 'area') {
-					this.areas.push(this.loadArea(area));
+					this.areas.push(this.loadArea(area, this));
 				}
 				
 				area = area.nextSibling;
@@ -70,7 +70,7 @@ export class Layout {
 		}
 	}
 	
-	loadArea(source, parent?: Area) {
+	loadArea(source, parent?: Area | Layout) {
 		const area = new Area(source.getAttribute('name'), parent);
 		
 		let child = source.firstChild;
@@ -194,27 +194,31 @@ export class Layout {
 		
 		const sectionName = parts.pop()!;
 		
-		let area = base;
+		let pool: Area | Layout = base;
 		
 		for (let index = 0; index < parts.length; index++) {
-			if (!area.parent) {
-				throw `section '${path}' could not be found from '${source.name}': area '${area.name}' does not have a parent`;
+			if (pool instanceof Layout || !pool.parent) {
+				throw `section '${path}' could not be found from '${source.name}': area '${pool.name}' does not have a parent`;
 			}
 			
-			area = area.parent!;
+			pool = pool.parent!;
 		}
 		
 		for (let part of parts) {
-			const child = area.children.find(child => child.name == part);
+			const child = (pool instanceof Area ? pool.children : pool.areas).find(child => child.name == part);
 			
 			if (!child) {
-				throw `section '${path}' could not be found from '${source.name}': area '${area.name}' does not have a child named '${part}'`;
+				throw `section '${path}' could not be found from '${source.name}': area '${pool.name}' does not have a child named '${part}'`;
 			}
 			
-			area = child;
+			pool = child;
+		}
+
+		if (pool instanceof Layout) {
+			throw `section '${path}' could not be found from '${source.name}': a layout cannot directly include a section`;
 		}
 		
-		return this.findSection(sectionName, area, source);
+		return this.findSection(sectionName, pool, source);
 	}
 	
 	loadRouter(source, area: Area) {

@@ -16,19 +16,24 @@ export class Section {
 		public name: string,
 		public area: Area
 	) {}
+
+	get domainName() {
+		return `${this.name}.${this.area.domainName}`;
+	}
 	
 	dump() {
-		console.group(`Section ${this.name}`);
+		console.group(`Section ${this.domainName}`);
 		
 		console.log('in', this.in?.name ?? 'buffer');
 		console.log('out', this.out?.name ?? 'buffer');
 		
-		console.log(`tracks`);
+		console.group(`tracks`);
 		
 		for (let track of this.tracks) {
 			track.dump();
 		}
 		
+		console.groupEnd();
 		console.groupEnd();
 	}
 	

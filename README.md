@@ -1,7 +1,7 @@
-# Automatic Train Control System
+# Automatic Train Control System
 Handles state management, routing and safety insurance of railway networks.
 
-## RTP - Railway Transfer Protocol
+## RTP - Railway Transfer Protocol
 This protocol allows devices and operators to interact with the controlling system.
 
 ```
