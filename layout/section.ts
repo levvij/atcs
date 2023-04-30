@@ -9,7 +9,7 @@ export class Section {
 	
 	tracks: Track[] = [];
 	
-	in?: Route | Section;
+	in?: Route | Section;
 	out?: Route | Section;
 	
 	constructor(
