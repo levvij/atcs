@@ -85,4 +85,21 @@ export class Area {
 			${this.children.map(child => child.toDotConnection()).join('')}
 		`;
 	}
+
+	toSVG() {
+		return `
+			<g id=${JSON.stringify(this.domainName)}>
+				${this.sections.map(section => section.toSVG()).join('')}
+
+				${this.children.map(child => child.toSVG()).join('')}
+			</g>
+		`;
+	}
+
+	findSVGPositions() {
+		return [
+			...this.sections.map(section => section.findSVGPositions()), 
+			...this.children.map(child => child.findSVGPositions())
+		];
+	}
 }

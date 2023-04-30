@@ -7,6 +7,7 @@ import { Section } from "./section.js";
 import { Track } from "./track.js";
 import { Router } from "./router.js";
 import { Route } from "./route.js";
+import { Tile, TilePattern } from "./tile.js";
 
 export class Layout {
 	name: string;
@@ -65,12 +66,35 @@ export class Layout {
 			}
 			
 			writeFileSync('layout.dot', `${dot}}`);
+
+			const positons = this.areas.map(area => area.findSVGPositions()).flat(Infinity);
+
+			const width = Math.max(...positons.map(position => position.x));
+			const height = Math.max(...positons.map(position => position.y));
+
+			let svg = `<svg width="${width * 25}" height="${height * 25}" viewBox="0 0 ${width + 1} ${height + 1}" xmlns="http://www.w3.org/2000/svg">
+				<style>
+
+					path {
+						fill: none;
+						stroke: #000;
+						stroke-width: 0.2;
+					}
+
+				</style>
+			`;
+			
+			for (let area of this.areas) {
+				svg += area.toSVG();
+			}
+			
+			writeFileSync('layout.svg', `${svg}</svg>`);
 		} else {
 			throw `unsupported railway definition file version '${version}' in '${this.path}'`;
 		}
 	}
 	
-	loadArea(source, parent?: Area | Layout) {
+	loadArea(source, parent: Area | Layout) {
 		const area = new Area(source.getAttribute('name'), parent);
 		
 		let child = source.firstChild;
@@ -154,6 +178,16 @@ export class Layout {
 					
 					track = track.nextSibling;
 				}
+			}
+
+			if (child.tagName == 'tile') {
+				const pattern = child.getAttribute('pattern');
+
+				if (!(pattern in TilePattern.patterns)) {
+					throw `unknown tile pattern '${pattern}' in tile ${section.tiles.length + 1} in ${section.domainName}`;
+				}
+
+				section.tiles.push(new Tile(section, +child.getAttribute('x'), +child.getAttribute('y'), TilePattern.patterns[pattern]))
 			}
 			
 			child = child.nextSibling;
