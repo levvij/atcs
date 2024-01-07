@@ -20,17 +20,27 @@ export class Discovery {
 			// only login requests should be handled
 			try {
 				const request = Message.from(data);
-				
-				if (request.routes('login')) {
-					const response = new Message(['connect'], {
-						version: '1'
-					});
-					
-					server.send(response.toBuffer(), remote.port, remote.address, (error) => {
-						if (error) console.error(error);
-						console.log('Sent response to client');
-					});
+
+				if (!request.routes('login')) {
+					throw new Error(`Invalid login route: ${request.route}`);
 				}
+
+				const deviceIdentifier = request.headers.device;
+
+				if (!deviceIdentifier) {
+					throw new Error('No device identifier supplied in login request');
+				}
+				
+				requestLogger.log(`login from ${deviceIdentifier}`);
+
+				const response = new Message(['connect'], {
+					version: '1'
+				});
+				
+				server.send(response.toBuffer(), remote.port, remote.address, (error) => {
+					if (error) console.error(error);
+					console.log('Sent response to client');
+				});
 			} catch {
 				requestLogger.log(`invalid service discovery request`);
 			}

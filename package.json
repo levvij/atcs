@@ -1,15 +1,14 @@
 {
-	"type": "module",
 	"name": "acts",
 	"version": "0.0.0",
 	"scripts": {
 		"build": "tsc",
-		"start": "tsc && environment node .built/server/index.js"
+		"start": "tsc && environment node .built/index.js"
 	},
 	"environment": {
-		"district": {
-			"name": "District Name",
-			"fileLocation": "District File Location"
+		"layout": {
+			"name": "Layout Name",
+			"fileLocation": "Layout File Location"
 		}
 	},
 	"dependencies": {
@@ -19,6 +18,6 @@
 	},
 	"devDependencies": {
 		"@types/node": "^18.15.11",
-		"typescript": "^5.0.4"
+		"typescript": "^4.9.4"
 	}
 }

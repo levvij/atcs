@@ -7,12 +7,19 @@ import { Router } from "./router";
 import { Section } from "./section";
 import { TilePattern, Tile } from "./tile";
 import { Track } from "./track";
+import { PointPositioner } from "./positioner/point";
+import { Device } from "./device/device";
+import { ResponderType } from "./positioner/responder-type";
+import { Channel } from "./device/channel";
 
 export class Layout {
 	name: string;
 	
 	districts: District[] = [];
 	
+	devices: Device[] = [];
+	responderType: ResponderType[] = [];
+
 	constructor(
 		private path: string
 	) {}
@@ -79,14 +86,14 @@ export class Layout {
 		
 		while (child) {
 			if (child.tagName == 'power-districts') {
-				let district = child.firstChild;
+				let powerDistrict = child.firstChild;
 				
-				while (district) {
-					if (district.tagName == 'power-district') {
-						district.powerDistricts.push(this.loadPowerDistrict(district, district));
+				while (powerDistrict) {
+					if (powerDistrict.tagName == 'power-district') {
+						district.powerDistricts.push(this.loadPowerDistrict(powerDistrict, district));
 					}
 					
-					district = district.nextSibling;
+					powerDistrict = powerDistrict.nextSibling;
 				}
 			}
 			
@@ -143,18 +150,47 @@ export class Layout {
 		
 		while (child) {
 			if (child.tagName == 'tracks') {
-				let track = child.firstChild;
+				let trackNode = child.firstChild;
 				
-				while (track) {
-					if (track.tagName == 'track') {
-						section.tracks.push(new Track(
+				while (trackNode) {
+					if (trackNode.tagName == 'track') {
+						const track = new Track(
 							section, 
-							+track.getAttribute('length'), 
-							track.getAttribute('path')
-						));
+							+trackNode.getAttribute('length'), 
+							trackNode.getAttribute('path')
+						);
+
+						section.tracks.push(track);
+						
+						let trackChild = trackNode.firstChild;
+
+						while (trackChild) {
+							if (trackChild.tagName == 'positioners') {
+								let positioner = trackChild.firstChild;
+
+								while (positioner) {
+									if (positioner.tagName == 'point') {
+										const device = this.findDevice(positioner.getAttribute('device'));
+										const channel = this.findChannel(device, positioner.getAttribute('channel'));
+										const responderType = this.findResponderType(positioner.getAttribute('responder'));
+
+										track.positioners.push(new PointPositioner(
+											track, 
+											+positioner.getAttribute('offset'),
+											channel,
+											responderType
+										));
+									}
+
+									positioner = positioner.nextSibling;
+								}
+							}
+
+							trackChild = trackChild.nextSibling;
+						}
 					}
 					
-					track = track.nextSibling;
+					trackNode = trackNode.nextSibling;
 				}
 			}
 
@@ -170,6 +206,45 @@ export class Layout {
 			
 			child = child.nextSibling;
 		}
+	}
+
+	findDevice(identifier: string) {
+		let device = this.devices.find(device => device.identifier == identifier);
+
+		if (device) {
+			return device;
+		}
+
+		device = new Device(identifier);
+		this.devices.push(device);
+
+		return device;
+	}
+
+	findChannel(device: Device, name: string) {
+		let channel = device.channels.find(channel => channel.name == name);
+
+		if (channel) {
+			return channel;
+		}
+
+		channel = new Channel(device, name);
+		device.channels.push(channel);
+
+		return channel;
+	}
+
+	findResponderType(name: string) {
+		let type = this.responderType.find(type => type.name == name);
+
+		if (type) {
+			return type;
+		}
+
+		type = new ResponderType(name);
+		this.responderType.push(type);
+
+		return type;
 	}
 	
 	linkSection(source, section: Section) {
@@ -302,5 +377,28 @@ export class Layout {
 		}
 			
 		return `${svg}${inject}</svg>`;
+	}
+
+	dump() {
+		console.group(`Layout ${this.name}`);
+		console.log('devices');
+
+		for (let device of this.devices) {
+			device.dump();
+		}
+
+		console.log('responder types');
+
+		for (let type of this.responderType) {
+			type.dump();
+		}
+
+		console.log('districts');
+
+		for (let district of this.districts) {
+			district.dump();
+		}
+
+		console.groupEnd();
 	}
 }

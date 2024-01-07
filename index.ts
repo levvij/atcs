@@ -1,24 +1,25 @@
-import { readFileSync, writeFileSync } from 'fs';
-import { createServer } from 'net';
-import { RootController } from './controllers/index.js';
-import { CommandParser } from './parser.js';
-import { Layout } from './layout/index.js';
-import { Train } from './train/index.js';
-import { SectionPosition } from './train/postion.js';
-import { Discovery } from './discovery/index.js';
+import { readFileSync, writeFileSync } from "fs";
+import { Discovery } from "./discovery";
+import { createServer } from "net";
+import { RootController } from "./controllers";
+import { Layout } from "./layout";
+import { CommandParser } from "./parser";
+import { Train } from "./train";
+import { SectionPosition } from "./train/postion";
 
 process.stdout.write(`ACTS ${JSON.parse(readFileSync('package.json').toString()).version}\n`);
 
 // listen for devices on the network
 Discovery.acceptConnections();
 
+const layout = new Layout(process.env.LAYOUT_FILE_LOCATION);
+layout.load();
+layout.dump();
+
 /*
 
-const layout = new Layout('../kalkbreite.com/layout/index.rml');
-layout.load();
-
 // fake set all routes
-for (let district of layout.alldistricts) {
+for (let district of layout.allDistricts) {
 	for (let router of district.routers) {
 		router.activeRoute = router.routes[0];
 	}
@@ -38,14 +39,14 @@ train.head = new SectionPosition(
 train.speed = 36;
 train.length = 420;
 
-// setInterval(() => {
+setInterval(() => {
 	train.advance(0.1);
 
 	console.log(train.head.toString());
 
 	const svg = layout.toSVG(train.toSVG());
 	writeFileSync('layout.svg', svg);
-// }, 100);
+}, 100);
 
 const server = createServer(socket => {
 	const session = new CommandParser(new RootController(), data => socket.write(data));
@@ -66,6 +67,6 @@ server.listen(141, () => {
 	);
 	
 	process.stdin.on('data', data => commandLineInterface.parse(data));
-}); 
+});
 
 */

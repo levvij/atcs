@@ -18,6 +18,11 @@ export class Message {
 				throw new Error('Invalid header name');
 			}
 		}
+
+		// remove empty bodies
+		if (body.length == 0) {
+			this.body = null;
+		}
 	}
 	
 	static from(
