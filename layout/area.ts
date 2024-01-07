@@ -1,11 +1,10 @@
-import { PowerDistrict } from "./power-district.js";
-import { Route } from "./route.js";
-import { Router } from "./router.js";
-import { Section } from "./section.js";
-import { Layout } from './index.js';
+import { Layout } from ".";
+import { PowerDistrict } from "./power-district";
+import { Router } from "./router";
+import { Section } from "./section";
 
-export class Area {
-	children: Area[] = [];
+export class District {
+	children: District[] = [];
 	
 	powerDistricts: PowerDistrict[] = [];
 	sections: Section[] = [];
@@ -13,7 +12,7 @@ export class Area {
 	
 	constructor(
 		public name: string,
-		public parent: Area | Layout
+		public parent: District | Layout
 	) {}
 
 	get domainName() {
@@ -25,7 +24,7 @@ export class Area {
 	}
 	
 	dump() {
-		console.group(`Area ${this.domainName}`);
+		console.group(`District ${this.domainName}`);
 		
 		if (this.powerDistricts.length) {
 			console.group('power districts');
@@ -50,8 +49,8 @@ export class Area {
 		if (this.children.length) {
 			console.group('children');
 			
-			for (let area of this.children) {
-				area.dump();
+			for (let district of this.children) {
+				district.dump();
 			}
 
 			console.groupEnd();
@@ -61,7 +60,7 @@ export class Area {
 	}
 	
 	toDotReference() {
-		return `cluster_${this.name.replace(/-/g, '_')}${this.parent instanceof Area ? this.parent.toDotReference() : ''}`;
+		return `cluster_${this.name.replace(/-/g, '_')}${this.parent instanceof District ? this.parent.toDotReference() : ''}`;
 	}
 	
 	toDotDefinition() {

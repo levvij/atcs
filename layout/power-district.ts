@@ -1,13 +1,13 @@
-import { Area } from "./area.js";
+import { District } from "./area";
 
 export class PowerDistrict {
 	constructor(
 		public name: string,
-		public area: Area
+		public district: District
 	) {}
 
 	get domainName() {
-		return `${this.name}.${this.area.domainName}`;
+		return `${this.name}.${this.district.domainName}`;
 	}
 	
 	dump() {

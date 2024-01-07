@@ -1,6 +1,5 @@
-import { Area } from "./area.js";
-import { Router } from "./router.js";
-import { Section } from "./section.js";
+import { Router } from "./router";
+import { Section } from "./section";
 
 export class Route {
 	in: Section;

@@ -1,16 +1,18 @@
-import { Area } from "./area.js";
-import { Route } from "./route.js";
+import { District } from "./area";
+import { Route } from "./route";
 
 export class Router {
+	activeRoute?: Route;
+
 	routes: Route[] = [];
 	
 	constructor(
 		public name: string,
-		public area: Area
+		public district: District
 	) {}
 
 	get domainName() {
-		return `${this.name}.${this.area.domainName}`;
+		return `${this.name}.${this.district.domainName}`;
 	}
 	
 	dump() {
@@ -24,7 +26,7 @@ export class Router {
 	}
 	
 	toDotReference() {
-		return `router_${this.name.replace(/-/g, '_')}_${this.area.toDotReference()}`;
+		return `router_${this.name.replace(/-/g, '_')}_${this.district.toDotReference()}`;
 	}
 	
 	toDotDefinition() {
