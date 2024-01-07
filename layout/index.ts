@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync } from "fs";
 import { DOMParser } from 'xmldom';
-import { District } from "./area";
+import { District } from "./district";
 import { PowerDistrict } from "./power-district";
 import { Route } from "./route";
 import { Router } from "./router";

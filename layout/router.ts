@@ -1,4 +1,4 @@
-import { District } from "./area";
+import { District } from "./district";
 import { Route } from "./route";
 
 export class Router {

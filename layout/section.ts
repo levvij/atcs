@@ -1,5 +1,5 @@
 import { SectionPosition } from "../train/postion";
-import { District } from "./area";
+import { District } from "./district";
 import { PowerDistrict } from "./power-district";
 import { Route } from "./route";
 import { Tile } from "./tile";
