@@ -3,16 +3,22 @@
 	"name": "acts",
 	"version": "0.0.0",
 	"scripts": {
-		"build": "tsc index.ts --target esnext --module nodenext --moduleResolution nodenext --outDir .built",
-		"start": "node --trace-uncaught .built/index.js",
-		"start:auto-request": "node --trace-uncaught .built/index.js < request"
+		"build": "tsc",
+		"start": "tsc && environment node .built/server/index.js"
+	},
+	"environment": {
+		"district": {
+			"name": "District Name",
+			"fileLocation": "District File Location"
+		}
 	},
 	"dependencies": {
+		"@acryps/environment": "^2.7.2",
 		"@types/xmldom": "^0.1.31",
-		"typescript": "^5.0.4",
 		"xmldom": "^0.6.0"
 	},
 	"devDependencies": {
-		"@types/node": "^18.15.11"
+		"@types/node": "^18.15.11",
+		"typescript": "^5.0.4"
 	}
 }
