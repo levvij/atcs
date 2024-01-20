@@ -322,10 +322,10 @@ export class Layout {
 				const route = new Route(child.getAttribute('name'), router);
 				
 				route.in = this.findSection(child.getAttribute('in'), router.district);
-				route.in.out = route;
+				route.in.out = router;
 				
 				route.out = this.findSection(child.getAttribute('out'), router.district);
-				route.out.in = route;
+				route.out.in = router;
 				
 				router.routes.push(route);
 			}
@@ -360,7 +360,7 @@ export class Layout {
 		const width = Math.max(...positons.map(position => position.x));
 		const height = Math.max(...positons.map(position => position.y));
 
-		let svg = `<svg width="${width * 25}" height="${height * 25}" viewBox="0 0 ${width + 1} ${height + 1}" xmlns="http://www.w3.org/2000/svg">
+		let svg = `<svg width="100vw" height="100vh" viewBox="0 0 ${width + 1} ${height + 1}" xmlns="http://www.w3.org/2000/svg">
 			<style>
 
 				path {

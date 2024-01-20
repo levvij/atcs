@@ -18,8 +18,6 @@ for (let district of layout.allDistricts) {
 	for (let router of district.routers) {
 		if (router.routes.length == 1) {
 			router.activeRoute = router.routes[0];
-
-			console.log('auto-defaulted', router.domainName, router.activeRoute.name);
 		}
 	}
 }
@@ -31,21 +29,19 @@ const setRoute = (routerName: string, routeName: string) => {
 
 		if (router) {
 			router.activeRoute = router.routes.find(route => route.name == routeName);
-
-			console.log('set route', routerName, routeName);
 		}
 	}
 }
 
 setRoute('adu-join.southbound.fiddle-yard-east.kalkbreite.com', 'left');
 setRoute('stem-south-branch-1.northbound.fiddle-yard-east.kalkbreite.com', 'left-left');
-
 setRoute('stem-south-branch-2.northbound.fiddle-yard-east.kalkbreite.com', 'straight');
 setRoute('stem-south-branch-3.northbound.fiddle-yard-east.kalkbreite.com', 'straight');
 setRoute('stem-south-branch-4.northbound.fiddle-yard-east.kalkbreite.com', 'straight');
 setRoute('stem-south-branch-5.northbound.fiddle-yard-east.kalkbreite.com', 'straight');
 
 setRoute('north-split.southbound.fiddle-yard-east.kalkbreite.com', 'straight');
+setRoute('stem-north-passover-storage-merge.northbound.fiddle-yard-east.kalkbreite.com', 'right');
 
 // listen for devices on the network
 Discovery.acceptConnections(layout.devices);
@@ -81,7 +77,7 @@ createServer({
 const train = new Train();
 train.reversed = false;
 train.maximalAcceleration = 5;
-train.speed = 50;
+train.speed = 43.5;
 train.length = 23;
 
 setInterval(() => {
@@ -98,10 +94,6 @@ setInterval(() => {
 
 function tick() {
 	const head = train.head;
-
-	if (head) {
-		console.log(head.toString());
-	}
 
 	setTimeout(() => tick());
 }

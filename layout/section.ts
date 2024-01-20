@@ -2,6 +2,7 @@ import { SectionPosition } from "../shared/postion";
 import { District } from "./district";
 import { PowerDistrict } from "./power-district";
 import { Route } from "./route";
+import { Router } from "./router";
 import { Tile } from "./tile";
 import { Track } from "./track";
 
@@ -11,8 +12,8 @@ export class Section {
 	tracks: Track[] = [];
 	tiles: Tile[] = [];
 	
-	in?: Route | Section;
-	out?: Route | Section;
+	in?: Router | Section;
+	out?: Router | Section;
 	
 	constructor(
 		public name: string,
@@ -34,12 +35,22 @@ export class Section {
 				return this.in;
 			}
 
-			if (this.in instanceof Route) {
-				if (this.in.in == this) {
-					return this.in.out;
+			if (this.in instanceof Router) {
+				const activeRoute = this.in.activeRoute;
+
+				if (!activeRoute) {
+					throw new Error(`Router '${this.in.domainName}' has no active route`);
 				}
 
-				return this.in.in;
+				if (activeRoute.in == this) {
+					return activeRoute.out;
+				}
+
+				if (activeRoute.out == this) {
+					return activeRoute.in;
+				}
+
+				throw new Error(`Router '${this.in.domainName}' is not routing from '${this.domainName}'`);
 			}
 		} else {
 			if (!this.out) {
@@ -50,12 +61,22 @@ export class Section {
 				return this.out;
 			}
 
-			if (this.out instanceof Route) {
-				if (this.out.in == this) {
-					return this.out.out;
+			if (this.out instanceof Router) {
+				const activeRoute = this.out.activeRoute;
+
+				if (!activeRoute) {
+					throw new Error(`Router '${this.out.domainName}' has no active route`);
 				}
 
-				return this.out.in;
+				if (activeRoute.in == this) {
+					return activeRoute.out;
+				}
+
+				if (activeRoute.out == this) {
+					return activeRoute.in;
+				}
+
+				throw new Error(`Router '${this.in.domainName}' is not routing from '${this.domainName}'`);
 			}
 		}
 	}
@@ -164,7 +185,7 @@ export class Section {
 		}
 
 		while (length > 0) {
-			let next: Route | Section | undefined;
+			let next: Router | Section | undefined;
 
 			if (reversed) {
 				next = tip.in;
@@ -184,16 +205,16 @@ export class Section {
 				tip = next;
 			}
 
-			if (next instanceof Route) {
-				if (!next.router.activeRoute) {
-					throw new Error(`Router '${next.router.domainName}' has no active route (routes: ${next.router.routes.map(route => `'${route.name}'`).join(', ')})`);
+			if (next instanceof Router) {
+				if (!next.activeRoute) {
+					throw new Error(`Router '${next.domainName}' has no active route (routes: ${next.routes.map(route => `'${route.name}'`).join(', ')})`);
 				}
 
 				// TODO: handle flipped cases
 				if (reversed) {
-					tip = next.router.activeRoute!.in;
+					tip = next.activeRoute!.in;
 				} else {
-					tip = next.router.activeRoute!.out;
+					tip = next.activeRoute!.out;
 				}
 			}
 
