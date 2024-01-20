@@ -185,6 +185,10 @@ export class Section {
 			}
 
 			if (next instanceof Route) {
+				if (!next.router.activeRoute) {
+					throw new Error(`Router '${next.router.domainName}' has no active route (routes: ${next.router.routes.map(route => `'${route.name}'`).join(', ')})`);
+				}
+
 				// TODO: handle flipped cases
 				if (reversed) {
 					tip = next.router.activeRoute!.in;

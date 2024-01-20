@@ -80,6 +80,7 @@ export class Tile {
     toSVG() {
         return `
             <path d="${this.toSVGPath()}" />
+            ${this.section.tiles[0] == this ? `<text x="${this.x}" y="${this.y}" font-size="0.2">${this.section.name}</text>` : ''}
         `;
     }
 }

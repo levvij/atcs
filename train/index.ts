@@ -35,8 +35,6 @@ export class Train {
 
 	toSVG() {
 		const trail = this.nominalTrail();
-		console.log('trail', trail);
-
 		const tiles: Tile[] = [];
 
 		let start = 0;
@@ -62,10 +60,7 @@ export class Train {
 			tiles.unshift(...range.tiles);
 		}
 
-		console.log('tiles', tiles);
-
 		const tip = tiles[tiles.length - 1];
-		console.log('tip', tip);
 
 		return `
 			<g id="train">

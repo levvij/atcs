@@ -1,7 +1,6 @@
 import { readFileSync, writeFileSync } from "fs";
 import { Discovery } from "./discovery";
 import { AddressInfo, createServer } from "net";
-import { RootController } from "./controllers";
 import { Layout } from "./layout";
 import { CommandParser } from "./parser";
 import { Train } from "./train";
@@ -12,7 +11,41 @@ process.stdout.write(`ACTS ${JSON.parse(readFileSync('package.json').toString())
 
 const layout = new Layout(process.env.LAYOUT_FILE_LOCATION);
 layout.load();
-layout.dump();
+
+// set the active route to the only route for routes with only one route
+// this only happens during testing of the layout while not all tracks are built yet
+for (let district of layout.allDistricts) {
+	for (let router of district.routers) {
+		if (router.routes.length == 1) {
+			router.activeRoute = router.routes[0];
+
+			console.log('auto-defaulted', router.domainName, router.activeRoute.name);
+		}
+	}
+}
+
+// manually set all active routes
+const setRoute = (routerName: string, routeName: string) => {
+	for (let district of layout.allDistricts) {
+		const router = district.routers.find(router => router.domainName == routerName);
+
+		if (router) {
+			router.activeRoute = router.routes.find(route => route.name == routeName);
+
+			console.log('set route', routerName, routeName);
+		}
+	}
+}
+
+setRoute('adu-join.southbound.fiddle-yard-east.kalkbreite.com', 'left');
+setRoute('stem-south-branch-1.northbound.fiddle-yard-east.kalkbreite.com', 'left-left');
+
+setRoute('stem-south-branch-2.northbound.fiddle-yard-east.kalkbreite.com', 'straight');
+setRoute('stem-south-branch-3.northbound.fiddle-yard-east.kalkbreite.com', 'straight');
+setRoute('stem-south-branch-4.northbound.fiddle-yard-east.kalkbreite.com', 'straight');
+setRoute('stem-south-branch-5.northbound.fiddle-yard-east.kalkbreite.com', 'straight');
+
+setRoute('north-split.southbound.fiddle-yard-east.kalkbreite.com', 'straight');
 
 // listen for devices on the network
 Discovery.acceptConnections(layout.devices);
@@ -48,7 +81,7 @@ createServer({
 const train = new Train();
 train.reversed = false;
 train.maximalAcceleration = 5;
-train.speed = 10;
+train.speed = 50;
 train.length = 23;
 
 setInterval(() => {
@@ -61,4 +94,16 @@ setInterval(() => {
 	} else {
 		console.log('< no position known >');
 	}
-}, 100);
+}, 1000);
+
+function tick() {
+	const head = train.head;
+
+	if (head) {
+		console.log(head.toString());
+	}
+
+	setTimeout(() => tick());
+}
+
+tick();
