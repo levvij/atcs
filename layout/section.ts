@@ -1,4 +1,4 @@
-import { SectionPosition } from "../train/postion";
+import { SectionPosition } from "../shared/postion";
 import { District } from "./district";
 import { PowerDistrict } from "./power-district";
 import { Route } from "./route";

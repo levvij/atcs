@@ -5,7 +5,8 @@ import { RootController } from "./controllers";
 import { Layout } from "./layout";
 import { CommandParser } from "./parser";
 import { Train } from "./train";
-import { SectionPosition } from "./train/postion";
+import { SectionPosition } from "./shared/postion";
+import { PointPositioner } from "./layout/positioner/point";
 
 process.stdout.write(`ACTS ${JSON.parse(readFileSync('package.json').toString()).version}\n`);
 
@@ -25,60 +26,39 @@ createServer({
 	const address = socket.remoteAddress.split(':').pop();
 	const device = layout.devices.find(device => device.lastDiscovery?.address == address);
 
-	device.handleConnection(socket);
+	const positioners: PointPositioner[] = [];
+
+	for (let district of layout.allDistricts) {
+		for (let section of district.sections) {
+			for (let track of section.tracks) {
+				for (let positioner of track.positioners) {
+					if (positioner instanceof PointPositioner) {
+						if (positioner.channel.device == device) {
+							positioners.push(positioner);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	device.handleConnection(socket, positioners, train);
 }).listen(141);
 
-/*
-
-// fake set all routes
-for (let district of layout.allDistricts) {
-	for (let router of district.routers) {
-		router.activeRoute = router.routes[0];
-	}
-}
-
 const train = new Train();
-
-train.head = new SectionPosition(
-	layout.districts
-		.find(district => district.name == 'fiddle-yard-east')!.children
-		.find(district => district.name == 'northbound')!.sections
-		.find(section => section.name == 'stem-body')!, 
-	450, 
-	false
-);
-
-train.speed = 36;
-train.length = 420;
+train.reversed = false;
+train.maximalAcceleration = 5;
+train.speed = 10;
+train.length = 23;
 
 setInterval(() => {
-	train.advance(0.1);
+	const head = train.head;
 
-	console.log(train.head.toString());
+	if (head) {
+		console.log(head.toString());
 
-	const svg = layout.toSVG(train.toSVG());
-	writeFileSync('layout.svg', svg);
+		writeFileSync('layout.svg', layout.toSVG(train.toSVG()));
+	} else {
+		console.log('< no position known >');
+	}
 }, 100);
-
-const server = createServer(socket => {
-	const session = new CommandParser(new RootController(), data => socket.write(data));
-	
-	socket.on('data', data => session.parse(data));
-	socket.on('error', error => console.warn('error in socket', error));
-}).on('error', error => {
-	console.log(error);
-});
-
-server.listen(141, () => {
-	process.stdout.write(`server on :141\n`);
-	
-	const commandLineInterface = new CommandParser(
-		new RootController(), 
-		data => process.stdout.write(data),
-		path => process.stdout.write(`\nRTP ${new Date().toISOString()}${path ? ` ${path}` : ''} # `)
-	);
-	
-	process.stdin.on('data', data => commandLineInterface.parse(data));
-});
-
-*/

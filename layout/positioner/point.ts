@@ -12,6 +12,10 @@ export class PointPositioner extends Positioner {
 	) {
 		super();
 	}
+
+	get position() {
+		return this.track.head.advance(this.offset);
+	}
 	
 	dump() {
 		console.group('Point positioner');

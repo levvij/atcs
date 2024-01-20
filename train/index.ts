@@ -1,25 +1,41 @@
 import { Tile } from "../layout/tile";
-import { SectionPosition } from "./postion";
+import { MeasuredPosition } from "./measured-location";
+import { SectionPosition } from "../shared/postion";
+import { PredictedPosition } from "./predicted-location";
 
 export class Train {
-	head: SectionPosition;
+	lastPositioner: MeasuredPosition;
+
 	length: number;
 
 	speed: number;
+	reversed: boolean;
+	maximalAcceleration: number;
 
-	trail() {
-		return this.head.section.trail(this.head.offset, !this.head.reversed, this.length);
+	// calculates the current head location based on the trains last known position measurement
+	get head() {
+		if (!this.lastPositioner) {
+			return;
+		}
+
+		const elapsedSeconds = (+new Date() - +this.lastPositioner.time) / 1000;
+
+		return new PredictedPosition(
+			this.lastPositioner.head,
+			this.lastPositioner.head.advance(this.speed * elapsedSeconds),
+			this.lastPositioner.head.advance(this.speed * elapsedSeconds + (this.maximalAcceleration * elapsedSeconds ** 2) / 2)
+		);
 	}
 
-	// time in seconds
-	advance(time: number) {
-		const distance = time * this.speed;
+	nominalTrail() {
+		const head = this.head.nominal;
 
-		this.head.advance(distance);
+		return head.section.trail(head.offset, this.reversed, this.length);
 	}
 
 	toSVG() {
-		const trail = this.trail();
+		const trail = this.nominalTrail();
+		console.log('trail', trail);
 
 		const tiles: Tile[] = [];
 
@@ -31,7 +47,7 @@ export class Train {
 		for (let sectionIndex = 0; sectionIndex < trail.sections.length; sectionIndex++) {
 			const section = trail.sections[sectionIndex];
 
-			const range = section.getTilesInRange(this.head, trail.tip);
+			const range = section.getTilesInRange(this.head.nominal, trail.tip);
 
 			if (sectionIndex == 0) {
 				start = range.offset.start;
@@ -46,7 +62,10 @@ export class Train {
 			tiles.unshift(...range.tiles);
 		}
 
+		console.log('tiles', tiles);
+
 		const tip = tiles[tiles.length - 1];
+		console.log('tip', tip);
 
 		return `
 			<g id="train">

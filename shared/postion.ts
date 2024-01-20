@@ -20,17 +20,16 @@ export class SectionPosition {
             const next = this.section.next(this.reversed);
 
             if (!next) {
-                throw `illegal advancement ${this} + ${distance}`;
+                throw new Error(`Illegal advancement ${this} + ${distance}`);
             }
 
-            this.offset = this.offset + distance - this.section.length;
-            this.section = next;
-        } else {
-            this.offset += distance;
+            return new SectionPosition(next, 0, this.reversed).advance(this.offset + distance - this.section.length);
         }
+        
+        return new SectionPosition(this.section, this.offset + distance, this.reversed);
     }
 
     toString() {
-        return `${this.section.domainName} @ ${this.offset} ${this.reversed ? 'backward' : 'forward'}`;
+        return `${this.section.name} @ ${this.offset.toFixed(1)} ${this.reversed ? 'backward' : 'forward'}`;
     }
 }
