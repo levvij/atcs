@@ -1,11 +1,12 @@
 import { createSocket } from "dgram";
 import { Logger } from "../shared/log";
 import { Message } from "../shared/message-parser";
+import { Device } from "../layout/device/device";
 
 export class Discovery {
 	static readonly listeningAddress = 142;
 
-	static acceptConnections() {
+	static acceptConnections(devices: Device[]) {
 		const logger = new Logger('discovery');
 		const server = createSocket('udp4');
 
@@ -30,6 +31,17 @@ export class Discovery {
 				if (!deviceIdentifier) {
 					throw new Error('No device identifier supplied in login request');
 				}
+
+				const device = devices.find(device => device.identifier == deviceIdentifier);
+
+				if (!device) {
+					throw new Error(`Device '${deviceIdentifier}' is not registered in layout`);
+				}
+
+				device.lastDiscovery = {
+					date: new Date(),
+					address: remote.address
+				};
 				
 				requestLogger.log(`login from ${deviceIdentifier}`);
 
@@ -37,12 +49,15 @@ export class Discovery {
 					version: '1'
 				});
 				
-				server.send(response.toBuffer(), remote.port, remote.address, (error) => {
-					if (error) console.error(error);
-					console.log('Sent response to client');
+				server.send(response.toBuffer(), remote.port, remote.address, error => {
+					if (error) {
+						requestLogger.error('invitation could not be sent', error);
+					} else {
+						requestLogger.log('invitation sent');
+					}
 				});
-			} catch {
-				requestLogger.log(`invalid service discovery request`);
+			} catch (error) {
+				requestLogger.warn(`invalid service discovery request`, error);
 			}
 		});
 		

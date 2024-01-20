@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync } from "fs";
 import { Discovery } from "./discovery";
-import { createServer } from "net";
+import { AddressInfo, createServer } from "net";
 import { RootController } from "./controllers";
 import { Layout } from "./layout";
 import { CommandParser } from "./parser";
@@ -9,12 +9,24 @@ import { SectionPosition } from "./train/postion";
 
 process.stdout.write(`ACTS ${JSON.parse(readFileSync('package.json').toString()).version}\n`);
 
-// listen for devices on the network
-Discovery.acceptConnections();
-
 const layout = new Layout(process.env.LAYOUT_FILE_LOCATION);
 layout.load();
 layout.dump();
+
+// listen for devices on the network
+Discovery.acceptConnections(layout.devices);
+
+createServer({
+	noDelay: true
+}, socket => {
+	socket.setTimeout(2500);
+	socket.setKeepAlive(true, 2500);
+
+	const address = socket.remoteAddress.split(':').pop();
+	const device = layout.devices.find(device => device.lastDiscovery?.address == address);
+
+	device.handleConnection(socket);
+}).listen(141);
 
 /*
 

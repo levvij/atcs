@@ -20,15 +20,27 @@ export class Message {
 		}
 
 		// remove empty bodies
-		if (body.length == 0) {
+		if (body?.length == 0) {
 			this.body = null;
 		}
 	}
+
+	static readFirst(source: Buffer) {
+		try {
+			const header = this.readHeader(source);
+			const length = header.headers['length'] ?? 0;
+
+			if (length == source.length - header.dataStart) {
+				return {
+					message: new Message(header.route, header.headers, source.subarray(header.dataStart, header.dataStart + length)),
+					nextStart: header.dataStart + length
+				};
+			}
+		} catch {}
+	}
 	
-	static from(
-		source: Buffer
-	) {
-		const headerLength = source.indexOf('\n\n')
+	private static readHeader(source: Buffer) {
+		const headerLength = source.indexOf('\n\n');
 
 		if (headerLength == -1) {
 			throw new Error('Unterminated header in message');
@@ -61,7 +73,25 @@ export class Message {
 			}
 		}
 
-		return new Message(routeString.split('/'), headers, source.subarray(headerLength + 2));
+		return {
+			route: routeString.split('/'),
+			headers,
+			dataStart: headerLength + 2
+		};
+	}
+
+	static from(source: Buffer) {
+		const data = this.readFirst(source);
+
+		if (!data) {
+			throw new Error('Message incomplete');
+		}
+
+		if (data.nextStart != source.length) {
+			throw new Error('Multiple messages passed');
+		}
+
+		return data.message;
 	}
 
 	routes(...routes: string[]) {

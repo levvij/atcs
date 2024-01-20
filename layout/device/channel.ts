@@ -9,4 +9,6 @@ export class Channel {
 	dump() {
 		console.log(`Channel '${this.name}' on ${this.device.identifier}`);
 	}
+
+	publish(data: any) {}
 }
