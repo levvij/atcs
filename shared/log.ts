@@ -21,7 +21,7 @@ export class Logger {
 			color = identifier.charCodeAt(i) + ((color << 5) - color);
 		}
 
-		return `\x1b[38;5;${(color % 208) + 20}m${text}\x1b[39m`;
+		return `\x1b[38;5;${Math.abs(color % 208) + 20}m${text}\x1b[39m`;
 	}
 
 	private composeHeader() {
