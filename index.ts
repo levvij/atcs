@@ -77,14 +77,18 @@ createServer({
 const train = new Train();
 train.reversed = false;
 train.maximalAcceleration = 5;
-train.speed = 43.5;
+train.speed = 42.6; // speed step 215 / ae 6/6
 train.length = 23;
+
+let length = 0;
 
 setInterval(() => {
 	const head = train.head;
 
 	if (head) {
-		console.log(head.toString());
+		const elapsed = (+new Date() - +train.lastPositioner.time) / 1000;
+
+		console.log(head.toString(), `${elapsed}s`, `${length / elapsed}m/s`);
 
 		writeFileSync('layout.svg', layout.toSVG(train.toSVG()));
 	} else {
@@ -94,6 +98,20 @@ setInterval(() => {
 
 function tick() {
 	const head = train.head;
+
+	if (!length && head) {
+		let tip = head.nominal.section;
+
+		while (tip) {
+			length += tip.length;
+
+			tip = tip.next(false);
+
+			if (tip == head.nominal.section) {
+				break;
+			}
+		}
+	}
 
 	setTimeout(() => tick());
 }
